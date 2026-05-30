@@ -1,0 +1,11 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.navbar__logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
