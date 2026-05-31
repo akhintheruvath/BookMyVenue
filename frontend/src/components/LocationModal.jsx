@@ -27,7 +27,7 @@ export function LocationModal({ open, onClose, onSelect }) {
         >
             <div className="w-full max-w-md rounded-xl bg-white shadow-lg">
 
-               
+                
                 <div className="flex items-center justify-between border-b border-gray-100 p-4">
                     <h2 className="font-semibold text-gray-900">
                         Select District
@@ -42,7 +42,7 @@ export function LocationModal({ open, onClose, onSelect }) {
                 </div>
 
                 {/* District Listing */}
-                <div className="h-380px overflow-y-auto p-4">
+                <div className="h-95 overflow-y-auto p-4">
                     <div className="grid gap-2">
 
                         {KERALA_DISTRICTS.map((district) => (
