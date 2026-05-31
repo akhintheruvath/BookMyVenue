@@ -1,5 +1,6 @@
 import { useState } from "react";
-import {LocationModal} from "./LocationModal.jsx";
+import { Link } from "react-router-dom";
+import { LocationModal } from "./LocationModal.jsx";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -11,16 +12,16 @@ export default function Navbar() {
     <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
       <div className="mx-auto max-w-7xl px-4 lg:px-6">
 
-       
+
         <div className="flex h-16 items-center gap-3">
 
-
-          
           <div className="logo flex items-center gap-2 shrink-0">
-            <div className="h-10 w-10 rounded-lg"><img src="/favicon.png" alt="icon" /></div>
-            <h1 className="text-lg font-semibold text-gray-900">
-              BookMyVenue
-            </h1>
+            <Link to="/" className="flex items-center">
+              <div className="h-10 w-10 rounded-lg"><img src="/favicon.png" alt="icon" /></div>
+              <h1 className="text-lg font-semibold text-gray-900">
+                BookMyVenue
+              </h1>
+            </Link>
           </div>
 
           {searchOpen && (
@@ -53,21 +54,29 @@ export default function Navbar() {
               <span className="text-xs">▼</span>
             </button>
 
-            <button className="rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">
+            <Link
+             to="/venue"
+             className="rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">
               Venue
-            </button>
+            </Link>
 
-            <button className="rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">
+            <Link
+             to={{pathname:"/category"}}
+             className="rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">
               Category
-            </button>
+            </Link>
 
-            <button className="rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">
+            <Link
+             to="/host"
+             className="rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">
               Host
-            </button>
+            </Link>
 
-            <button className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+            <Link
+             to="/signin"
+             className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
               Sign In
-            </button>
+            </Link>
           </div>
 
           {/* Mobile Actions */}
@@ -85,9 +94,11 @@ export default function Navbar() {
               ☰
             </button>
 
-            <button className="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white">
+            <Link
+             to="/signin"
+             className="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white">
               Sign In
-            </button>
+            </Link>
           </div>
 
         </div>
@@ -104,17 +115,23 @@ export default function Navbar() {
         {menuOpen && (
           <div className="border-t border-gray-100 py-2 md:hidden">
 
-            <button className="block w-full rounded-md px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">
+            <Link
+             to="/venue"
+             className="block w-full rounded-md px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">
               Venue
-            </button>
+            </Link>
 
-            <button className="block w-full rounded-md px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">
+            <Link
+             to="/category"
+             className="block w-full rounded-md px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">
               Category
-            </button>
+            </Link>
 
-            <button className="block w-full rounded-md px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">
+            <Link
+             to="/host"
+             className="block w-full rounded-md px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">
               Host
-            </button>
+            </Link>
 
           </div>
         )}

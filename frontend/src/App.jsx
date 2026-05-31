@@ -1,14 +1,24 @@
-import Navbar from './components/Navbar'
-import Home from './pages/Home'
+import {Routes,Route} from 'react-router-dom';
 
-// Root component. For now it renders the Navbar + Home page directly.
-// TODO: once we add more pages, introduce React Router here
-// (npm install react-router-dom) and swap <Home /> for <Routes>.
+import Navbar from './components/Navbar';
+import Home from './pages/Home';
+import Venue from './pages/Venue';
+import Category from './pages/Category';
+import Host from './pages/Host';
+import Signin from './pages/Signin';
+
 function App() {
   return (
     <div className="min-h-screen">
       <Navbar />
-      <Home />
+
+      <Routes>
+        <Route path='/' element={<Home/>}/>
+        <Route path='/venue' element={<Venue/>}/>
+        <Route path='/category' element={<Category/>}/>
+        <Route path='/host' element={<Host/>}/>
+        <Route path='/signin' element={<Signin/>}/>
+      </Routes>
     </div>
   )
 }
