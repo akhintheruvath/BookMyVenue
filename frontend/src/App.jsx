@@ -1,10 +1,8 @@
 import {Routes,Route} from 'react-router-dom';
 
 import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import Venue from './pages/Venue';
-import Category from './pages/Category';
-import Signin from './pages/Signin';
+import {Home,Venue,Category,Signin} from './pages/UserPages/UserPages.js';
+import {AdminLogin} from './pages/AdminPage/AdminPages.js';
 
 function App() {
   return (
@@ -16,6 +14,8 @@ function App() {
         <Route path='/venue' element={<Venue/>}/>
         <Route path='/category' element={<Category/>}/>
         <Route path='/signin' element={<Signin/>}/>
+
+        <Route path='/admin' element={<AdminLogin/>}/>
       </Routes>
     </div>
   )
