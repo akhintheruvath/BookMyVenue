@@ -1,25 +1,43 @@
-import {Routes,Route} from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import Venue from './pages/Venue';
-import Category from './pages/Category';
-import Host from './pages/Host';
-import Signin from './pages/Signin';
+import { Home, Venue, Category, Signin } from './pages/UserPages/UserPages.js';
+import { AdminLogin } from './pages/AdminPage/AdminPages.js';
 
 function App() {
   return (
-    <div className="min-h-screen">
-      <Navbar />
 
-      <Routes>
-        <Route path='/' element={<Home/>}/>
-        <Route path='/venue' element={<Venue/>}/>
-        <Route path='/category' element={<Category/>}/>
-        <Route path='/host' element={<Host/>}/>
-        <Route path='/signin' element={<Signin/>}/>
-      </Routes>
-    </div>
+
+    <Routes>
+      {/* Public User Routes */}
+      <Route path='/' element={
+        <div className="min-h-screen">
+          <Navbar />
+          <Home />
+        </div>
+      } />
+      <Route path='/venue' element={
+        <div className="min-h-screen">
+          <Navbar />
+          <Venue />
+        </div>
+      } />
+      <Route path='/category' element={
+        <div className="min-h-screen">
+          <Navbar />
+          <Category />
+        </div>
+      } />
+      <Route path='/signin' element={
+        <div className="min-h-screen">
+          <Navbar />
+          <Signin />
+        </div>
+      } />
+
+      <Route path='/admin' element={<AdminLogin />} />
+    </Routes>
+
   )
 }
 
