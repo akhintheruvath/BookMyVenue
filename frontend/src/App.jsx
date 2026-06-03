@@ -1,8 +1,9 @@
 import { Routes, Route } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
+import AdminNavbar from './components/AdminNavbar.jsx'
 import { Home, Venue, Category, Signin } from './pages/UserPages/UserPages.js';
-import { AdminLogin } from './pages/AdminPage/AdminPages.js';
+import { AdminLogin,AdminHome } from './pages/AdminPage/AdminPages.js';
 
 function App() {
   return (
@@ -36,6 +37,12 @@ function App() {
       } />
 
       <Route path='/admin' element={<AdminLogin />} />
+      <Route path='/admin/home' element={
+        <div className="min-h-screen">
+          <AdminNavbar />
+          <AdminHome />
+        </div>
+      } />
     </Routes>
 
   )
