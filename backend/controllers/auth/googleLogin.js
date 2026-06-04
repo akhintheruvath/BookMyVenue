@@ -1,7 +1,7 @@
 const Users = require("../../models/user");
 const { USER_ROLES, SELF_SIGNUP_ROLES } = require("../../constants/user");
 const { signAuthToken } = require("../../utils/jwt");
-const { verifyGoogleIdToken } = require("./shared");
+const { verifyGoogleIdToken, toPublicUser } = require("./shared");
 
 // Human-readable tab name for each self-signup role, used in error messages.
 const ROLE_TAB_LABEL = {
@@ -64,7 +64,9 @@ async function googleLogin(req, res) {
       // 3. Issue our own app JWT for subsequent authenticated requests.
       const token = signAuthToken(user);
 
-      return res.status(200).json({ data: { token } });
+      return res
+         .status(200)
+         .json({ data: { token, user: toPublicUser(user) } });
    } catch (err) {
       return res
          .status(500)

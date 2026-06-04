@@ -20,4 +20,15 @@ async function verifyGoogleIdToken(idToken) {
    };
 }
 
-module.exports = { verifyGoogleIdToken };
+// Shape a User document for safe sending to the client (omit internal fields).
+function toPublicUser(user) {
+   return {
+      id: user._id.toString(),
+      email: user.email,
+      name: user.name,
+      picture: user.picture,
+      role: user.role,
+   };
+}
+
+module.exports = { verifyGoogleIdToken, toPublicUser };
