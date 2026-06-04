@@ -67,12 +67,6 @@ export default function Navbar() {
             </Link>
 
             <Link
-             to="/host"
-             className="rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">
-              Host
-            </Link>
-
-            <Link
              to="/signin"
              className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
               Sign In
@@ -125,12 +119,6 @@ export default function Navbar() {
              to="/category"
              className="block w-full rounded-md px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">
               Category
-            </Link>
-
-            <Link
-             to="/host"
-             className="block w-full rounded-md px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50">
-              Host
             </Link>
 
           </div>
