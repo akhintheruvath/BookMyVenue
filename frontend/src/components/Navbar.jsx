@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { LocationModal } from "./LocationModal.jsx";
+import { useAuth } from "../context/authContext.js";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
   const [district, setDistrict] = useState("Ernakulam");
+  const { user, logout, openSignin } = useAuth();
 
   return (
     <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
@@ -66,11 +68,29 @@ export default function Navbar() {
               Category
             </Link>
 
-            <Link
-             to="/signin"
-             className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
-              Sign In
-            </Link>
+            {user ? (
+              <div className="flex items-center gap-2">
+                {user.picture && (
+                  <img
+                    src={user.picture}
+                    alt={user.name}
+                    className="h-8 w-8 rounded-full"
+                  />
+                )}
+                <span className="text-sm text-gray-700">{user.name || user.email}</span>
+                <button
+                  onClick={logout}
+                  className="rounded-md border border-gray-200 px-3 py-2 text-sm text-gray-600 hover:border-red-500 hover:text-red-600">
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button
+               onClick={openSignin}
+               className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+                Sign In
+              </button>
+            )}
           </div>
 
           {/* Mobile Actions */}
@@ -88,11 +108,19 @@ export default function Navbar() {
               ☰
             </button>
 
-            <Link
-             to="/signin"
-             className="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white">
-              Sign In
-            </Link>
+            {user ? (
+              <button
+                onClick={logout}
+                className="rounded-md border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600">
+                Logout
+              </button>
+            ) : (
+              <button
+               onClick={openSignin}
+               className="rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white">
+                Sign In
+              </button>
+            )}
           </div>
 
         </div>
