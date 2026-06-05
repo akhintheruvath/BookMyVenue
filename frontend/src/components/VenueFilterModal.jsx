@@ -54,33 +54,33 @@ export default function VenueFilterModal({
     return (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
 
-            <div className="bg-white rounded-xl shadow-lg w-[700px] h-[450px] overflow-hidden">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-xl">
 
                 {/* Header */}
-                <div className="flex justify-between items-center p-4 border-b">
-                    <h2 className="text-lg font-semibold">
+                <div className="flex justify-between items-center p-4 border-b border-gray-200">
+                    <h2 className="text-2xl font-bold text-black">
                         Filters
                     </h2>
 
                     <button
                         onClick={onClose}
-                        className="text-xl"
+                        className="text-gray-500 hover:text-red-600 text-xl transition"
                     >
                         ×
                     </button>
                 </div>
 
                 {/* Body */}
-                <div className="flex h-[320px]">
+                <div className="flex h-80">
 
                     {/* Left Menu */}
-                    <div className="w-1/3 border-r">
+                    <div className="w-1/3 border-r border-gray-200">
 
                         <button
                             onClick={() => setActiveSection("category")}
                             className={`w-full text-left p-4 ${activeSection === "category"
-                                    ? "bg-gray-100 font-medium"
-                                    : ""
+                                ? "bg-red-50 text-red-600 border-r-4 border-red-600 font-semibold"
+                                : "text-gray-600 hover:bg-gray-50"
                                 }`}
                         >
                             Category
@@ -89,8 +89,8 @@ export default function VenueFilterModal({
                         <button
                             onClick={() => setActiveSection("price")}
                             className={`w-full text-left p-4 ${activeSection === "price"
-                                    ? "bg-gray-100 font-medium"
-                                    : ""
+                                ? "bg-red-50 text-red-600 border-r-4 border-red-600 font-semibold"
+                                : "text-gray-600 hover:bg-gray-50"
                                 }`}
                         >
                             Price
@@ -113,9 +113,9 @@ export default function VenueFilterModal({
                                                 category: category.identifier,
                                             }))
                                         }
-                                        className={`px-4 py-2 rounded-lg border ${tempFilters.category === category.identifier
-                                                ? "bg-black text-white"
-                                                : ""
+                                        className={` px-4 py-2 rounded-xl border transition-all duration-200 ${tempFilters.category === category.identifier
+                                            ? "bg-red-600 text-white border-red-600"
+                                            : "bg-white text-black border-gray-300 hover:bg-red-50 hover:border-red-300"
                                             }`}
                                     >
                                         {category.name}
@@ -138,10 +138,10 @@ export default function VenueFilterModal({
                                                 maxPrice: range.maxPrice,
                                             }))
                                         }
-                                        className={`px-4 py-2 rounded-lg border transition ${tempFilters.minPrice === range.minPrice &&
-                                                tempFilters.maxPrice === range.maxPrice
-                                                ? "bg-black text-white"
-                                                : "hover:bg-gray-100"
+                                        className={`px-4 py-2 rounded-xl border transition-all duration-200 ${tempFilters.minPrice === range.minPrice &&
+                                            tempFilters.maxPrice === range.maxPrice
+                                            ? "bg-red-600 text-white border-red-600"
+                                            : "bg-white text-black border-gray-300 hover:bg-red-50 hover:border-red-300"
                                             }`}
                                     >
                                         {range.label}
@@ -156,18 +156,18 @@ export default function VenueFilterModal({
                 </div>
 
                 {/* Footer */}
-                <div className="border-t p-4 flex justify-end gap-3">
+                <div className="border-t border-gray-200 p-4 flex justify-end gap-3">
 
                     <button
                         onClick={clearFilters}
-                        className="px-4 py-2 border rounded-lg hover:bg-gray-100"
+                        className=" px-4 py-2 border border-gray-300 text-black rounded-xl hover:bg-gray-50 "
                     >
                         Clear
                     </button>
 
                     <button
                         onClick={handleApply}
-                        className="px-4 py-2 bg-black text-white rounded-lg"
+                        className=" px-5 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition "
                     >
                         Apply Filters
                     </button>
