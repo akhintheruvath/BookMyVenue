@@ -1,15 +1,16 @@
 import { api } from "../api/client.js";
 
 export const getVenues = async (page = 1, filters = {}) => {
-  const response = await api.get("/venues", {
-    params: {
-      page,
-      district: filters.district || undefined,
-      category: filters.category || undefined,
-      minPrice: filters.minPrice || undefined,
-      maxPrice: filters.maxPrice || undefined,
-    },
-  });
+  const params = new URLSearchParams();
+
+  params.set("page", page);
+
+  if (filters.district) params.set("district", filters.district);
+  if (filters.category) params.set("category", filters.category);
+  if (filters.minPrice)  params.set("minPrice", filters.minPrice);
+  if (filters.maxPrice)  params.set("maxPrice", filters.maxPrice);
+
+  const response = await api.get(`/venues?${params.toString()}`);
 
   return response;
 };
