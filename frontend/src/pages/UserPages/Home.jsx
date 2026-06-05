@@ -43,7 +43,7 @@ export function Home() {
         const categoryResponse = await getVenueCategories();
 
         setVenues(venueResponse.data);
-        setCategories(categoryResponse.data);
+        setCategories(categoryResponse);
       } catch (error) {
         console.error(error);
       }
