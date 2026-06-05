@@ -28,7 +28,7 @@ function App() {
             <Venue />
           </div>
         } />
-        <Route path='/category' element={
+        <Route path='/venue/category' element={
           <div className="min-h-screen">
             <Navbar />
             <Category />

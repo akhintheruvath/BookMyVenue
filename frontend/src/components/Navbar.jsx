@@ -63,7 +63,7 @@ export default function Navbar() {
             </Link>
 
             <Link
-             to={{pathname:"/category"}}
+             to={{pathname:"/venue/category"}}
              className="rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">
               Category
             </Link>

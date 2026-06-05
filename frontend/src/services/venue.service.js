@@ -1,5 +1,16 @@
 import { api } from "../api/client.js";
 
-export const getVenues = async (page = 1) => {
-  return await api.get(`/venues?page=${page}`);
+export const getVenues = async (page = 1, filters = {}) => {
+  const params = new URLSearchParams();
+
+  params.set("page", page);
+
+  if (filters.district) params.set("district", filters.district);
+  if (filters.category) params.set("category", filters.category);
+  if (filters.minPrice)  params.set("minPrice", filters.minPrice);
+  if (filters.maxPrice)  params.set("maxPrice", filters.maxPrice);
+
+  const response = await api.get(`/venues?${params.toString()}`);
+
+  return response;
 };
