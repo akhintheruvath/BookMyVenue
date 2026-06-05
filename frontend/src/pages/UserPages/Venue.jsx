@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { getVenues } from "../../services/venue.service.js";
 import { getVenueCategories } from "../../services/venueCategory.service.js";
 import VenueCard from "../../components/VenueCard.jsx";
@@ -10,16 +11,36 @@ export function Venue() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
-
+  const [searchParams, setSearchParams] = useSearchParams();
   const [showFilterModal, setShowFilterModal] = useState(false);
+  const initialFilters = {
+    district: searchParams.get("district") || "",
+    category: searchParams.get("category") || "",
+    minPrice: searchParams.get("minPrice") || "",
+    maxPrice: searchParams.get("maxPrice") || "",
+  };
+  const [appliedFilters, setAppliedFilters] = useState(initialFilters);
 
-  const [appliedFilters, setAppliedFilters] = useState({
-    district: "",
-    category: "",
-    minPrice: "",
-    maxPrice: "",
-  });
 
+  const updateUrl = (filters, currentPage) => {
+    const params = {};
+
+    if (filters.category) {
+      params.category = filters.category;
+    }
+
+    if (filters.minPrice) {
+      params.minPrice = filters.minPrice;
+    }
+
+    if (filters.maxPrice) {
+      params.maxPrice = filters.maxPrice;
+    }
+
+    params.page = currentPage;
+
+    setSearchParams(params);
+  };
 
 
   useEffect(() => {
@@ -124,7 +145,12 @@ export function Venue() {
 
           <button
             disabled={page === 1}
-            onClick={() => setPage(page - 1)}
+            onClick={() => {
+              const prevPage = page - 1;
+
+              setPage(prevPage);
+              updateUrl(appliedFilters, prevPage);
+            }}
             className="px-4 py-2 border rounded disabled:opacity-50"
           >
             Previous
@@ -136,7 +162,12 @@ export function Venue() {
 
           <button
             disabled={page === totalPages}
-            onClick={() => setPage(page + 1)}
+            onClick={() => {
+              const nextPage = page + 1;
+
+              setPage(nextPage);
+              updateUrl(appliedFilters, nextPage);
+            }}
             className="px-4 py-2 border rounded disabled:opacity-50"
           >
             Next
@@ -154,6 +185,8 @@ export function Venue() {
         onApply={(filters) => {
           setAppliedFilters(filters);
           setPage(1);
+
+          updateUrl(filters, 1);
         }}
       />
 
