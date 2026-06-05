@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getVenueCategories } from "../../services/venueCategory.service.js";
 import CategoryCard from "../../components/CategoryCard.jsx";
 
@@ -52,11 +53,15 @@ export function Category() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {categories.map((category, index) => (
-          <CategoryCard
+          <Link
             key={category._id}
-            category={category}
-            bgColor={bgColors[index % bgColors.length]}
-          />
+            to={`/venue?category=${category.identifier}`}
+          >
+            <CategoryCard              
+              category={category}
+              bgColor={bgColors[index % bgColors.length]}
+            />
+          </Link>
         ))}
       </div>
     </section>
