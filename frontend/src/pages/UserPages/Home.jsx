@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { getVenues } from "../../services/venue.service.js";
 import { getVenueCategories } from "../../services/venueCategory.service.js";
-import { HomeVenueSection } from "../../components/HomeVenueSection.jsx";
+import HomeVenueSection from "../../components/HomeVenueSection.jsx";
+import HomeBannerSection from "../../components/HomeBannerSection.jsx"
 
 function getRandomCategories(categories, count = 2) {
   const shuffled = [...categories].sort(() => Math.random() - 0.5);
@@ -56,7 +57,8 @@ export function Home() {
   return (
     <div className="px-6 py-8">
 
-      {/* Hero Banner */}
+      <HomeBannerSection />
+
 
       <HomeVenueSection
         title="Top Rated Venues"

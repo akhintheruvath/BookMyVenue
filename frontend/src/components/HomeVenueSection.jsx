@@ -1,6 +1,6 @@
 import VenueCard from "./HomeVenueCard.jsx";
 
-export function HomeVenueSection({
+export default function HomeVenueSection({
   title,
   venues,
 }) {
