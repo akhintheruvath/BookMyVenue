@@ -4,7 +4,7 @@ import { SigninModal } from './components/shared/SigninModal.jsx';
 import { UserLayout } from './pages/UserPages/UserLayout.jsx';
 import { VenueOwnerLayout } from './pages/OwnerPage/VenueOwnerLayout.jsx';
 import { AdminLayout } from './pages/AdminPage/AdminLayout.jsx';
-import { Home, Venue, Category } from './pages/UserPages/UserPages.js';
+import { Home, Venue, Category,VenueDetails } from './pages/UserPages/UserPages.js';
 import { AdminLogin,AdminHome } from './pages/AdminPage/AdminPages.js';
 import {VenueOwnerHome,VenueOwnerLogin} from './pages/OwnerPage/VenueOwnerPage.js'
 
@@ -19,6 +19,7 @@ function App() {
         <Route element={<UserLayout />}>
           <Route path='/' element={<Home />} />
           <Route path='/venue' element={<Venue />} />
+          <Route path='/venue/:id' element={<VenueDetails />} />
           <Route path='/venue/category' element={<Category />} />
         </Route>
 
