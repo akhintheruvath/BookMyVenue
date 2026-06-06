@@ -1,9 +1,9 @@
 import { Routes, Route } from 'react-router-dom';
 
-import Navbar from './components/user/Navbar';
-import AdminNavbar from './components/admin/AdminNavbar.jsx'
-import VenueOwnerNavbar from './components/venueOwner/VenueOwnerNavbar.jsx'
 import { SigninModal } from './components/shared/SigninModal.jsx';
+import { UserLayout } from './pages/UserPages/UserLayout.jsx';
+import { VenueOwnerLayout } from './pages/OwnerPage/VenueOwnerLayout.jsx';
+import { AdminLayout } from './pages/AdminPage/AdminLayout.jsx';
 import { Home, Venue, Category } from './pages/UserPages/UserPages.js';
 import { AdminLogin,AdminHome } from './pages/AdminPage/AdminPages.js';
 import {VenueOwnerHome,VenueOwnerLogin} from './pages/OwnerPage/VenueOwnerPage.js'
@@ -16,43 +16,23 @@ function App() {
 
       <Routes>
         {/* Public User Routes */}
-        <Route path='/' element={
-          <div className="min-h-screen">
-            <Navbar />
-            <Home />
-          </div>
-        } />
-        <Route path='/venue' element={
-          <div className="min-h-screen">
-            <Navbar />
-            <Venue />
-          </div>
-        } />
-        <Route path='/venue/category' element={
-          <div className="min-h-screen">
-            <Navbar />
-            <Category />
-          </div>
-        } />
-
+        <Route element={<UserLayout />}>
+          <Route path='/' element={<Home />} />
+          <Route path='/venue' element={<Venue />} />
+          <Route path='/venue/category' element={<Category />} />
+        </Route>
 
         {/* Venue Owner Routings */}
         <Route path='/venue-owner' element={<VenueOwnerLogin />} />
-        <Route path='/venue-owner/home' element={
-          <div className="min-h-screen">
-            <VenueOwnerNavbar />
-            <VenueOwnerHome />
-          </div>
-        } />
+        <Route element={<VenueOwnerLayout />}>
+          <Route path='/venue-owner/home' element={<VenueOwnerHome />} />
+        </Route>
 
         {/* Admin Routings */}
         <Route path='/admin' element={<AdminLogin />} />
-        <Route path='/admin/home' element={
-          <div className="min-h-screen">
-            <AdminNavbar />
-            <AdminHome />
-          </div>
-        } />
+        <Route element={<AdminLayout />}>
+          <Route path='/admin/home' element={<AdminHome />} />
+        </Route>
       </Routes>
     </>
   )
