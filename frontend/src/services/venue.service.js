@@ -14,3 +14,8 @@ export const getVenues = async (page = 1, filters = {}) => {
 
   return response;
 };
+
+export const getVenueById = async(id) => {
+  const venue = await api.get(`/venues/${id}`);
+  return venue;
+}
