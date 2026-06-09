@@ -1,34 +1,13 @@
-import { Link } from "react-router-dom"
+import { OwnerLandingInfo } from "../../components/venueOwner/landing/OwnerLandingInfo.jsx";
+import { OwnerSignInCard } from "../../components/venueOwner/landing/OwnerSignInCard.jsx";
+
 export function VenueOwnerLogin() {
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-100">
-
-            <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
-
-                <h1 className="mb-6 text-center text-2xl font-bold">
-                    Venue Owner Login
-                </h1>
-
-                <input
-                    type="email"
-                    placeholder="Email"
-                    className="mb-4 w-full rounded-lg border p-3"
-                />
-
-                <input
-                    type="password"
-                    placeholder="Password"
-                    className="mb-4 w-full rounded-lg border p-3"
-                />
-
-                <Link to='/venue-owner/home'>
-                    <button className="w-full rounded-lg bg-red-600 py-3 text-white">
-                        Login
-                    </button>
-                </Link>
-
+        <div className="min-h-screen bg-gray-100">
+            <div className="mx-auto flex min-h-screen max-w-6xl flex-col items-center gap-10 px-4 py-10 lg:flex-row lg:gap-16 lg:py-0">
+                <OwnerLandingInfo />
+                <OwnerSignInCard />
             </div>
-
         </div>
-    )
+    );
 }
