@@ -1,5 +1,6 @@
 import DashboardStatCard from "../../components/venueOwner/DashboardStatCard.jsx";
 import QuickAccessCard from "../../components/venueOwner/QuickAccessCard.jsx";
+import RecentActivities from "../../components/venueOwner/RecentActivities.jsx";
 import { Building2, Clock3, FileText, Ban, Plus, CalendarDays,BarChart3,Settings } from "lucide-react";
 
 export function VenueOwnerDashboard() {
@@ -95,8 +96,10 @@ export function VenueOwnerDashboard() {
           Recent Activity
         </h2>
 
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+        <div>
           {/* Activity List */}
+          <RecentActivities/>
+
         </div>
       </section>
 
