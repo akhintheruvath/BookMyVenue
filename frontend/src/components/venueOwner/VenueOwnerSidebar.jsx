@@ -23,7 +23,7 @@ const navItems = [
     path: "/venue-owner/analytics",
   },
 ];
-export default function VenueOwnerNavbar() {
+export default function VenueOwnerSidebar() {
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-gray-200 bg-white">
       <div className="border-b border-gray-200 px-5 py-4">
