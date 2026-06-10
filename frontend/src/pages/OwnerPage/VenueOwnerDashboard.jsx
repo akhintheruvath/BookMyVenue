@@ -1,5 +1,6 @@
-import DashboardStatCard from "../../components/venueOwner/DashboardStatCard.jsx"
-import { Building2, Clock3, FileText, Ban} from "lucide-react";
+import DashboardStatCard from "../../components/venueOwner/DashboardStatCard.jsx";
+import QuickAccessCard from "../../components/venueOwner/QuickAccessCard.jsx";
+import { Building2, Clock3, FileText, Ban, Plus, CalendarDays,BarChart3,Settings } from "lucide-react";
 
 export function VenueOwnerDashboard() {
   return (
@@ -57,6 +58,34 @@ export function VenueOwnerDashboard() {
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {/* Quick Action Cards */}
+
+          <QuickAccessCard
+            icon={Plus}
+            title="Add Venue"
+            bgColor="bg-red-50"
+            iconColor="text-red-600"
+          />
+
+          <QuickAccessCard
+            icon={CalendarDays}
+            title="Bookings"
+            bgColor="bg-blue-50"
+            iconColor="text-blue-600"
+          />
+
+          <QuickAccessCard
+            icon={BarChart3}
+            title="Analytics"
+            bgColor="bg-green-50"
+            iconColor="text-green-600"
+          />
+
+          <QuickAccessCard
+            icon={Settings}
+            title="Settings"
+            bgColor="bg-purple-50"
+            iconColor="text-purple-600"
+          />
         </div>
       </section>
 
