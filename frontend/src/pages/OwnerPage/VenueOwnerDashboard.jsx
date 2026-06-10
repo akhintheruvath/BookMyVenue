@@ -1,153 +1,76 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getOwnerVenues, getOwnerVenueCount, submitVenue, setVenueVisibility, deleteVenue } from '../../services/venueOwner.service.js';
-import VenueTable from '../../components/venueOwner/VenueTable.jsx';
-import DashboardTabs, { TABS, getEmptyTabText } from '../../components/venueOwner/DashboardTabs.jsx';
-
-const PAGE_LIMIT = 10;
-
-function initTabState() {
-  return Object.fromEntries(
-    TABS.map((t, i) => [
-      t.key,
-      {
-        venues: [],
-        page: 1,
-        totalPages: 1,
-        total: 0,
-        loading: i === 0,
-        error: "",
-      },
-    ])
-  );
-}
+import DashboardStatCard from "../../components/venueOwner/DashboardStatCard.jsx"
+import { Building2, Clock3, FileText, Ban} from "lucide-react";
 
 export function VenueOwnerDashboard() {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState(TABS[0].key);
-  const [tabState, setTabState] = useState(initTabState);
-
-  function setTab(key, patch) {
-    setTabState(prev => ({ ...prev, [key]: { ...prev[key], ...patch } }));
-  }
-
-  async function fetchCounts() {
-    const results = await Promise.allSettled(
-      TABS.map(t => getOwnerVenueCount({ status: t.statuses.join(',') }))
-    );
-    results.forEach((result, i) => {
-      if (result.status === 'fulfilled') {
-        setTab(TABS[i].key, { total: result.value });
-      }
-    });
-  }
-
-  async function fetchTab(tabKey, page = 1) {
-    const tab = TABS.find(t => t.key === tabKey);
-    setTab(tabKey, { loading: true, error: '' });
-    try {
-      const res = await getOwnerVenues({ status: tab.statuses.join(','), page, limit: PAGE_LIMIT });
-      setTab(tabKey, {
-        venues: res.data,
-        page: res.pagination.page,
-        totalPages: res.pagination.totalPages,
-        total: res.pagination.total,
-        loading: false,
-      });
-    } catch (err) {
-      setTab(tabKey, { loading: false, error: err.message });
-    }
-  }
-
-  useEffect(() => {
-    fetchCounts();
-    fetchTab(TABS[0].key, 1);
-  }, []);
-
-  function handleTabChange(key) {
-    setActiveTab(key);
-    // Only fetch if not yet loaded for this tab
-    if (tabState[key].venues.length === 0 && !tabState[key].loading) {
-      fetchTab(key, 1);
-    }
-  }
-
-  function handlePageChange(page) {
-    fetchTab(activeTab, page);
-  }
-
-  async function handleAction(action, venue) {
-    try {
-      if (action === 'edit') {
-        navigate(`/venue-owner/venues/edit/${venue._id}`);
-        return;
-      }
-      if (action === 'submit')  await submitVenue(venue._id);
-      if (action === 'disable') await setVenueVisibility(venue._id, false);
-      if (action === 'enable')  await setVenueVisibility(venue._id, true);
-      if (action === 'delete') {
-        if (!window.confirm(`Delete "${venue.name}"? This cannot be undone.`)) return;
-        await deleteVenue(venue._id);
-      }
-      // Refresh counts + current tab after mutation
-      fetchCounts();
-      fetchTab(activeTab, tabState[activeTab].page);
-    } catch (err) {
-      alert(err.message);
-    }
-  }
-
-  const current = tabState[activeTab];
-  const counts = Object.fromEntries(TABS.map(t => [t.key, tabState[t.key].total]));
-
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="space-y-8">
 
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">My Venues</h1>
-        <button
-          onClick={() => navigate('/venue-owner/venues/new')}
-          className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition"
-        >
-          + Add New Venue
-        </button>
-      </div>
+      {/* Page Heading */}
+      <section>
+        <h1 className="text-3xl font-bold text-gray-900">
+          Dashboard
+        </h1>
+      </section>
 
-      <DashboardTabs activeTab={activeTab} counts={counts} onTabChange={handleTabChange} />
-
-      {current.loading && <p className="py-10 text-center text-gray-400 text-sm">Loading venues...</p>}
-      {!current.loading && current.error && <p className="py-10 text-center text-red-500 text-sm">{current.error}</p>}
-      {!current.loading && !current.error && (
-        <>
-          <VenueTable
-            venues={current.venues}
-            onAction={handleAction}
-            emptyText={getEmptyTabText(activeTab)}
+      {/* Statistics Cards */}
+      <section>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <DashboardStatCard
+            icon={Building2}
+            title="Active Venues"
+            value={12}
+            iconBg="bg-green-50"
+            iconColor="text-green-600"
           />
-          {current.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-6">
-              <button
-                onClick={() => handlePageChange(current.page - 1)}
-                disabled={current.page === 1}
-                className="px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-40"
-              >
-                Previous
-              </button>
-              <span className="text-sm text-gray-500">
-                Page {current.page} of {current.totalPages}
-              </span>
-              <button
-                onClick={() => handlePageChange(current.page + 1)}
-                disabled={current.page === current.totalPages}
-                className="px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-40"
-              >
-                Next
-              </button>
-            </div>
-          )}
-        </>
-      )}
+
+          <DashboardStatCard
+            icon={Clock3}
+            title="Pending Approval"
+            value={3}
+            iconBg="bg-yellow-50"
+            iconColor="text-yellow-600"
+          />
+
+          <DashboardStatCard
+            icon={FileText}
+            title="Draft Venues"
+            value={2}
+            iconBg="bg-blue-50"
+            iconColor="text-blue-600"
+          />
+
+          <DashboardStatCard
+            icon={Ban}
+            title="Disabled"
+            value={1}
+            iconBg="bg-gray-100"
+            iconColor="text-gray-600"
+          />
+        </div>
+      </section>
+
+      {/* Quick Access */}
+      <section>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+          Quick Access
+        </h2>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {/* Quick Action Cards */}
+        </div>
+      </section>
+
+      {/* Recent Activity */}
+      <section>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+          Recent Activity
+        </h2>
+
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+          {/* Activity List */}
+        </div>
+      </section>
 
     </div>
-  );
+  )
 }
