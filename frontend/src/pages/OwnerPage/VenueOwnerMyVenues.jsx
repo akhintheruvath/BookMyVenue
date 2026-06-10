@@ -1,0 +1,153 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getOwnerVenues, getOwnerVenueCount, submitVenue, setVenueVisibility, deleteVenue } from '../../services/venueOwner.service.js';
+import VenueTable from '../../components/venueOwner/VenueTable.jsx';
+import DashboardTabs, { TABS, getEmptyTabText } from '../../components/venueOwner/DashboardTabs.jsx';
+
+const PAGE_LIMIT = 10;
+
+function initTabState() {
+  return Object.fromEntries(
+    TABS.map((t, i) => [
+      t.key,
+      {
+        venues: [],
+        page: 1,
+        totalPages: 1,
+        total: 0,
+        loading: i === 0,
+        error: "",
+      },
+    ])
+  );
+}
+
+export function VenueOwnerDashboard() {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState(TABS[0].key);
+  const [tabState, setTabState] = useState(initTabState);
+
+  function setTab(key, patch) {
+    setTabState(prev => ({ ...prev, [key]: { ...prev[key], ...patch } }));
+  }
+
+  async function fetchCounts() {
+    const results = await Promise.allSettled(
+      TABS.map(t => getOwnerVenueCount({ status: t.statuses.join(',') }))
+    );
+    results.forEach((result, i) => {
+      if (result.status === 'fulfilled') {
+        setTab(TABS[i].key, { total: result.value });
+      }
+    });
+  }
+
+  async function fetchTab(tabKey, page = 1) {
+    const tab = TABS.find(t => t.key === tabKey);
+    setTab(tabKey, { loading: true, error: '' });
+    try {
+      const res = await getOwnerVenues({ status: tab.statuses.join(','), page, limit: PAGE_LIMIT });
+      setTab(tabKey, {
+        venues: res.data,
+        page: res.pagination.page,
+        totalPages: res.pagination.totalPages,
+        total: res.pagination.total,
+        loading: false,
+      });
+    } catch (err) {
+      setTab(tabKey, { loading: false, error: err.message });
+    }
+  }
+
+  useEffect(() => {
+    fetchCounts();
+    fetchTab(TABS[0].key, 1);
+  }, []);
+
+  function handleTabChange(key) {
+    setActiveTab(key);
+    // Only fetch if not yet loaded for this tab
+    if (tabState[key].venues.length === 0 && !tabState[key].loading) {
+      fetchTab(key, 1);
+    }
+  }
+
+  function handlePageChange(page) {
+    fetchTab(activeTab, page);
+  }
+
+  async function handleAction(action, venue) {
+    try {
+      if (action === 'edit') {
+        navigate(`/venue-owner/venues/edit/${venue._id}`);
+        return;
+      }
+      if (action === 'submit')  await submitVenue(venue._id);
+      if (action === 'disable') await setVenueVisibility(venue._id, false);
+      if (action === 'enable')  await setVenueVisibility(venue._id, true);
+      if (action === 'delete') {
+        if (!window.confirm(`Delete "${venue.name}"? This cannot be undone.`)) return;
+        await deleteVenue(venue._id);
+      }
+      // Refresh counts + current tab after mutation
+      fetchCounts();
+      fetchTab(activeTab, tabState[activeTab].page);
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  const current = tabState[activeTab];
+  const counts = Object.fromEntries(TABS.map(t => [t.key, tabState[t.key].total]));
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900">My Venues</h1>
+        <button
+          onClick={() => navigate('/venue-owner/venues/new')}
+          className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition"
+        >
+          + Add New Venue
+        </button>
+      </div>
+
+      <DashboardTabs activeTab={activeTab} counts={counts} onTabChange={handleTabChange} />
+
+      {current.loading && <p className="py-10 text-center text-gray-400 text-sm">Loading venues...</p>}
+      {!current.loading && current.error && <p className="py-10 text-center text-red-500 text-sm">{current.error}</p>}
+      {!current.loading && !current.error && (
+        <>
+          <VenueTable
+            venues={current.venues}
+            onAction={handleAction}
+            emptyText={getEmptyTabText(activeTab)}
+          />
+          {current.totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-6">
+              <button
+                onClick={() => handlePageChange(current.page - 1)}
+                disabled={current.page === 1}
+                className="px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-40"
+              >
+                Previous
+              </button>
+              <span className="text-sm text-gray-500">
+                Page {current.page} of {current.totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(current.page + 1)}
+                disabled={current.page === current.totalPages}
+                className="px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
+      )}
+
+    </div>
+  );
+}
