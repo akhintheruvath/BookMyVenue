@@ -6,7 +6,7 @@ import { VenueOwnerLayout } from './pages/OwnerPage/VenueOwnerLayout.jsx';
 import { AdminLayout } from './pages/AdminPage/AdminLayout.jsx';
 import { Home, Venue, Category,VenueDetails } from './pages/UserPages/UserPages.js';
 import { AdminLogin,AdminHome } from './pages/AdminPage/AdminPages.js';
-import {VenueOwnerLogin,VenueOwnerDashboard} from './pages/OwnerPage/VenueOwnerPage.js'
+import {VenueOwnerLogin,VenueOwnerDashboard,VenueOwnerMyVenues} from './pages/OwnerPage/VenueOwnerPage.js'
 
 function App() {
   return (
@@ -27,6 +27,7 @@ function App() {
         <Route path='/venue-owner' element={<VenueOwnerLogin />} />
         <Route element={<VenueOwnerLayout />}>
           <Route path='/venue-owner/home' element={<VenueOwnerDashboard />} />
+          <Route path='/venue-owner/my-venues' element={<VenueOwnerMyVenues />} />
         </Route>
 
         {/* Admin Routings */}

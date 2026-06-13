@@ -22,7 +22,7 @@ function initTabState() {
   );
 }
 
-export function VenueOwnerDashboard() {
+export function VenueOwnerMyVenues() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(TABS[0].key);
   const [tabState, setTabState] = useState(initTabState);
@@ -61,6 +61,7 @@ export function VenueOwnerDashboard() {
 
   useEffect(() => {
     fetchCounts();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchTab(TABS[0].key, 1);
   }, []);
 

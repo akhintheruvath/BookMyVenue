@@ -10,7 +10,7 @@ const navItems = [
   {
     label: "My Venues",
     icon: Building2,
-    path: "/venue-owner/venues",
+    path: "/venue-owner/my-venues",
   },
   {
     label: "Bookings",
@@ -42,7 +42,6 @@ export default function VenueOwnerSidebar() {
         </Link>
       </div>
 
-      {/* Navigation Items */}
       <div className="p-3">
         <nav className="space-y-1">
           {navItems.map((item) => {
