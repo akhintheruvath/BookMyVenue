@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Plus } from "lucide-react";
 import { getOwnerVenues, getOwnerVenueCount, submitVenue, setVenueVisibility, deleteVenue } from '../../services/venueOwner.service.js';
 import VenueTable from '../../components/venueOwner/VenueTable.jsx';
 import DashboardTabs, { TABS, getEmptyTabText } from '../../components/venueOwner/DashboardTabs.jsx';
@@ -83,9 +84,9 @@ export function VenueOwnerMyVenues() {
         navigate(`/venue-owner/venues/edit/${venue._id}`);
         return;
       }
-      if (action === 'submit')  await submitVenue(venue._id);
+      if (action === 'submit') await submitVenue(venue._id);
       if (action === 'disable') await setVenueVisibility(venue._id, false);
-      if (action === 'enable')  await setVenueVisibility(venue._id, true);
+      if (action === 'enable') await setVenueVisibility(venue._id, true);
       if (action === 'delete') {
         if (!window.confirm(`Delete "${venue.name}"? This cannot be undone.`)) return;
         await deleteVenue(venue._id);
@@ -104,51 +105,60 @@ export function VenueOwnerMyVenues() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
 
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">My Venues</h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">My Venues</h1>
         <button
-          onClick={() => navigate('/venue-owner/venues/new')}
-          className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition"
-        >
-          + Add New Venue
+        onClick={() => navigate('/venue-owner/venues/new')}
+          className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+          <Plus size={16} />
+          Add Venue
         </button>
       </div>
 
       <DashboardTabs activeTab={activeTab} counts={counts} onTabChange={handleTabChange} />
 
+      <div className="flex justify-end">
+        <input
+          placeholder="Search venues..."
+          className="w-80 rounded-lg border border-gray-300 px-4 py-2"
+        />
+      </div>
+
       {current.loading && <p className="py-10 text-center text-gray-400 text-sm">Loading venues...</p>}
       {!current.loading && current.error && <p className="py-10 text-center text-red-500 text-sm">{current.error}</p>}
-      {!current.loading && !current.error && (
-        <>
-          <VenueTable
-            venues={current.venues}
-            onAction={handleAction}
-            emptyText={getEmptyTabText(activeTab)}
-          />
-          {current.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-6">
-              <button
-                onClick={() => handlePageChange(current.page - 1)}
-                disabled={current.page === 1}
-                className="px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-40"
-              >
-                Previous
-              </button>
-              <span className="text-sm text-gray-500">
-                Page {current.page} of {current.totalPages}
-              </span>
-              <button
-                onClick={() => handlePageChange(current.page + 1)}
-                disabled={current.page === current.totalPages}
-                className="px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-40"
-              >
-                Next
-              </button>
-            </div>
-          )}
-        </>
-      )}
+      {
+        !current.loading && !current.error && (
+          <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+            <VenueTable
+              venues={current.venues}
+              onAction={handleAction}
+              emptyText={getEmptyTabText(activeTab)}
+            />
+            {current.totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-6">
+                <button
+                  onClick={() => handlePageChange(current.page - 1)}
+                  disabled={current.page === 1}
+                  className="px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-40"
+                >
+                  Previous
+                </button>
+                <span className="text-sm text-gray-500">
+                  Page {current.page} of {current.totalPages}
+                </span>
+                <button
+                  onClick={() => handlePageChange(current.page + 1)}
+                  disabled={current.page === current.totalPages}
+                  className="px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-40"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </div>
+        )
+      }
 
-    </div>
+    </div >
   );
 }
