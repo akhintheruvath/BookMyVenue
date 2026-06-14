@@ -10,7 +10,7 @@ const navItems = [
   {
     label: "My Venues",
     icon: Building2,
-    path: "/venue-owner/venues",
+    path: "/venue-owner/my-venues",
   },
   {
     label: "Bookings",
@@ -25,7 +25,7 @@ const navItems = [
 ];
 export default function VenueOwnerSidebar() {
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-gray-200 bg-white">
+    <aside className="flex h-screen w-64 flex-col border-r border-gray-200 bg-white fixed">
       <div className="border-b border-gray-200 px-5 py-4">
         <Link
           to="/venue-owner/home"
@@ -42,7 +42,6 @@ export default function VenueOwnerSidebar() {
         </Link>
       </div>
 
-      {/* Navigation Items */}
       <div className="p-3">
         <nav className="space-y-1">
           {navItems.map((item) => {
