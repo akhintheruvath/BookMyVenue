@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import VenueOwnerSidebar from "../../components/venueOwner/VenueOwnerSidebar.jsx";
 
-// Shared chrome for venue-owner routes that show the navbar (e.g. /venue-owner/home).
+// Shared chrome for venue-owner routes that show the navbar (e.g. /venue-owner/dashboard).
 // The login route is rendered outside this layout.
 export function VenueOwnerLayout() {
   return (

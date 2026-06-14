@@ -5,7 +5,7 @@ const navItems = [
   {
     label: "Dashboard",
     icon: LayoutDashboard,
-    path: "/venue-owner/home",
+    path: "/venue-owner/dashboard",
   },
   {
     label: "My Venues",
@@ -28,7 +28,7 @@ export default function VenueOwnerSidebar() {
     <aside className="flex h-screen w-64 flex-col border-r border-gray-200 bg-white fixed">
       <div className="border-b border-gray-200 px-5 py-4">
         <Link
-          to="/venue-owner/home"
+          to="/venue-owner/dashboard"
           className="flex items-center gap-2"
         >
           <img

@@ -5,13 +5,18 @@ import { InputWithIcon } from "../../shared/form/InputWithIcon.jsx";
 import { PasswordField } from "../../shared/form/PasswordField.jsx";
 import { EMAIL_PATTERN } from "../../shared/form/inputClasses.js";
 import bmvLogo from "../../../assets/bmvLogo.svg";
+import { api } from "../../../api/client.js";
+import { showInfo } from "../../../utils/toastBus.js";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../context/authContext.js";
 
 // Email/password sign-up card for venue owners. Shown in place of the sign-in
 // card when the user clicks "Create an account" (parent toggles between them).
-// UI only for now — the actual register call + navigation are wired in a later slice.
 export function OwnerSignUpCard({ onSwitchToSignIn }) {
     // A single toggle controls both the password and confirm-password fields.
     const [showPassword, setShowPassword] = useState(false);
+    const navigate = useNavigate();
+    const { loginWithToken } = useAuth();
     const {
         register,
         handleSubmit,
@@ -19,8 +24,22 @@ export function OwnerSignUpCard({ onSwitchToSignIn }) {
         formState: { errors },
     } = useForm();
 
-    function onSubmit() {
-        // TODO (next slice): call the register API and navigate to the dashboard.
+    async function onSubmit(data) {
+        try {
+            const res = await api.post("/auth/venueOwner/signup", data);
+            if (res.data?.token) {
+                await loginWithToken(res.data.token);
+                showInfo("Account creation completed and logged in successfully!")
+                navigate("/venue-owner/dashboard");
+            } else {
+                // account created but auto sign-in failed — tell the user and
+                // send them to the sign-in card to log in manually
+                showInfo(res.message);
+                onSwitchToSignIn();
+            }
+        } catch (error) {
+            // error is already shown by the toast from the API client
+        }
     }
 
     const togglePassword = () => setShowPassword((s) => !s);
@@ -82,9 +101,10 @@ export function OwnerSignUpCard({ onSwitchToSignIn }) {
                         error={errors.password}
                         registration={register("password", {
                             required: "Password is required",
-                            minLength: {
-                                value: 8,
-                                message: "Password must be at least 8 characters",
+                            pattern: {
+                                value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[-#!$@£%^&*()_+|~=`{}[\]:";'<>?,./\\ ]).{8,}$/,
+                                message:
+                                    "Password must be at least 8 characters with 1 lowercase, 1 uppercase, 1 number and 1 symbol", // same as backend
                             },
                         })}
                     />

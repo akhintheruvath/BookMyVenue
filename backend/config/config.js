@@ -6,7 +6,12 @@ module.exports = {
    googleClientId: process.env.GOOGLE_CLIENT_ID,
 
    jwtSecret: process.env.JWT_SECRET,
-   jwtExpiresIn: "7d",
+   // Token lifetime per role. Customers stay logged in longer for convenience;
+   // venue owners get a shorter session since their account manages listings.
+   jwtExpiresIn: {
+      customer: "7d",
+      venueOwner: "1d",
+   },
 
    // Comma-separated list of frontend origins allowed by CORS.
    // Defaults to the Vite dev server.

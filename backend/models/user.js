@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema(
          trim: true,
          lowercase: true,
       },
+      password: { type: String },
       name: { type: String, trim: true, default: "" },
       // Profile picture URL provided by Google.
       picture: { type: String, trim: true, default: "" },

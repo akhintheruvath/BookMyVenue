@@ -3,6 +3,9 @@
 // headers, auth token, and error handling in one place.
 //
 // Vite reads env vars prefixed with VITE_ (see .env). Falls back to the
+
+import { showError } from "../utils/toastBus";
+
 // local backend if VITE_API_URL is not set.
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
@@ -18,19 +21,34 @@ export function setToken(token) {
   else localStorage.removeItem(TOKEN_KEY);
 }
 
+// Called when the backend rejects our token (401) on any request, so the auth
+// context can clear the stale session and route guards can redirect to login.
+// AuthProvider registers a handler here on mount; until then it's a no-op.
+let onUnauthorized = () => {};
+
+export function setUnauthorizedHandler(handler) {
+  onUnauthorized = handler;
+}
+
 async function request(path, options = {}) {
   const token = getToken();
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers || {}),
-    },
-  })
+
+  let res;
+  try {
+    res = await fetch(`${BASE_URL}${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(options.headers || {}),
+      },
+    })
+  } catch (error) {
+    showError(error.message);
+    throw error;
+  }
 
   if (!res.ok) {
-    // Try to surface the backend's { message } for nicer errors.
     let detail = res.statusText;
     try {
       const body = await res.json();
@@ -38,6 +56,14 @@ async function request(path, options = {}) {
     } catch {
       // response had no JSON body; keep statusText
     }
+    // Token invalid/expired/revoked — drop the stale session so route guards
+    // bounce the user to login. Skipped during the initial /auth/me restore,
+    // which handles its own 401 (no session exists yet to clear).
+    if (res.status === 401) {
+      setToken(null);
+      onUnauthorized();
+    }
+    showError(detail);
     throw new Error(`API error ${res.status}: ${detail}`);
   }
 

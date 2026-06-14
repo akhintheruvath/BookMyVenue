@@ -5,7 +5,8 @@ const { jwtSecret, jwtExpiresIn } = require("../config/config");
 // are all the API needs to authorize requests.
 function signAuthToken(user) {
    const payload = { userId: user._id.toString() };
-   return jwt.sign(payload, jwtSecret, { expiresIn: jwtExpiresIn });
+   const expiresIn = jwtExpiresIn[user.role];
+   return jwt.sign(payload, jwtSecret, { expiresIn });
 }
 
 // Verifies an app JWT and returns its decoded payload.
