@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const Users = require("../../models/user");
 const { signAuthToken } = require("../../utils/jwt");
+const { toPublicUser } = require("./shared");
 const { USER_ROLES } = require("../../constants/user");
 
 module.exports.venueOwnerSignUp = async (req, res) => {
@@ -32,7 +33,7 @@ module.exports.venueOwnerSignUp = async (req, res) => {
 
       res.status(201).json({
          message: "Venue owner registration completed and logged in successfully",
-         data: { token: loginToken },
+         data: { token: loginToken, user: toPublicUser(user) },
       });
    } catch (error) {
       if (error.code === 11000) {

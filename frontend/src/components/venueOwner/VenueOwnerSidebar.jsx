@@ -1,5 +1,6 @@
 import { NavLink, Link } from "react-router-dom";
-import { LayoutDashboard, Building2, CalendarDays, ChartColumn, Settings } from "lucide-react";
+import { LayoutDashboard, Building2, CalendarDays, ChartColumn, Settings, LogOut } from "lucide-react";
+import { useAuth } from "../../context/authContext.js";
 
 const navItems = [
   {
@@ -24,6 +25,8 @@ const navItems = [
   },
 ];
 export default function VenueOwnerSidebar() {
+  const { logout } = useAuth();
+
   return (
     <aside className="flex h-screen w-64 flex-col border-r border-gray-200 bg-white fixed">
       <div className="border-b border-gray-200 px-5 py-4">
@@ -73,6 +76,14 @@ export default function VenueOwnerSidebar() {
           <Settings size={18} />
           <span>Settings</span>
         </NavLink>
+        <button
+          type="button"
+          onClick={logout}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
+        >
+          <LogOut size={18} />
+          <span>Log out</span>
+        </button>
       </div>
     </aside>
   );

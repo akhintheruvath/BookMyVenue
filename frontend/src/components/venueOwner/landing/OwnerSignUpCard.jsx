@@ -16,7 +16,7 @@ export function OwnerSignUpCard({ onSwitchToSignIn }) {
     // A single toggle controls both the password and confirm-password fields.
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
-    const { loginWithToken } = useAuth();
+    const { loginWithSession } = useAuth();
     const {
         register,
         handleSubmit,
@@ -28,7 +28,7 @@ export function OwnerSignUpCard({ onSwitchToSignIn }) {
         try {
             const res = await api.post("/auth/venueOwner/signup", data);
             if (res.data?.token) {
-                await loginWithToken(res.data.token);
+                loginWithSession(res.data.token, res.data.user);
                 showInfo("Account creation completed and logged in successfully!")
                 navigate("/venue-owner/dashboard");
             } else {

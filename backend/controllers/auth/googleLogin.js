@@ -1,27 +1,18 @@
 const Users = require("../../models/user");
-const { USER_ROLES, SELF_SIGNUP_ROLES } = require("../../constants/user");
+const { USER_ROLES } = require("../../constants/user");
 const { signAuthToken } = require("../../utils/jwt");
 const { verifyGoogleIdToken, toPublicUser } = require("./shared");
 
-// Human-readable tab name for each self-signup role, used in error messages.
-const ROLE_TAB_LABEL = {
-   [USER_ROLES.CUSTOMER]: "User",
-   [USER_ROLES.VENUE_OWNER]: "Venue Owner",
-};
-
 // POST /auth/googleLogin
-// Body: { idToken, role } — the Google ID token from the frontend, plus the
-// role the chosen tab represents ("customer" or "venueOwner").
-// Verifies the token, creates the user with that role (or enforces their
-// existing role), and returns our own app JWT.
+// Body: { idToken } — the Google ID token from the frontend.
+// Google sign-in is for customers only; venue owners use the email/password
+// flow. Verifies the token, creates the customer if new (or enforces that an
+// existing account is a customer), and returns our own app JWT.
 async function googleLogin(req, res) {
    try {
-      const { idToken, role } = req.body || {};
+      const { idToken } = req.body || {};
       if (!idToken) {
          return res.status(400).json({ message: "idToken is required" });
-      }
-      if (!SELF_SIGNUP_ROLES.includes(role)) {
-         return res.status(400).json({ message: "A valid role is required" });
       }
 
       // 1. Verify the token really came from Google and is meant for us(this application).
@@ -38,12 +29,12 @@ async function googleLogin(req, res) {
       let user = await Users.findOne({ email: profile.email });
 
       if (user) {
-         // An existing account's role is fixed. If they signed in via the wrong
-         // tab, refuse and point them at the correct one.
-         if (user.role !== role) {
-            const correctTab = ROLE_TAB_LABEL[user.role] || "the correct";
+         // Google sign-in only ever produces customers. A non-customer account
+         // (e.g. a venue owner) must use its own sign-in flow — refuse here.
+         if (user.role !== USER_ROLES.CUSTOMER) {
             return res.status(409).json({
-               message: `Account exists already, login on "${correctTab}" tab or use a different email if you want to become a ${ROLE_TAB_LABEL[role].toLowerCase()}.`,
+               message:
+                  "This email is already registered for a different account type. Use a different email to sign in as a customer.",
             });
          }
          // Keep Google-sourced fields fresh and link googleId if missing.
@@ -57,7 +48,7 @@ async function googleLogin(req, res) {
             email: profile.email,
             name: profile.name,
             picture: profile.picture,
-            role,
+            role: USER_ROLES.CUSTOMER,
          });
       }
 
