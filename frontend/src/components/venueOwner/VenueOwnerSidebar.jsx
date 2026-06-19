@@ -40,7 +40,7 @@ export default function VenueOwnerSidebar() {
             className="h-8 w-8"
           />
           <span className="font-semibold text-gray-900">
-            BookMyVenue • Owner
+            BookMyVenue • Venue Owner
           </span>
         </Link>
       </div>

@@ -4,7 +4,7 @@ const {
    DEFAULT_PAGE,
    DEFAULT_LIMIT,
    CATEGORY_POPULATE,
-   OWNER_VENUE_PROJECTION,
+   VENUE_OWNER_VENUE_PROJECTION,
    parsePageParam,
 } = require("./shared");
 
@@ -12,19 +12,19 @@ const {
 // we must NOT filter editOf:null or we'd get zero results.
 const EDIT_COPY_STATUSES = [VENUE_STATUS.EDIT_DRAFT, VENUE_STATUS.CHANGES_PENDING];
 
-// GET /venueOwner/venues — paginated owner venue list based on statuses passed.
+// GET /venueOwner/venues — paginated venue owner venue list based on statuses passed.
 // Query params:
 //   status  comma-separated status values (e.g. "APPROVED" or "DRAFT,EDIT_DRAFT")
 //   page    integer ≥1 (default 1)
 //   limit   integer ≥1 (default 20)
 //   countOnly "true" — returns { data: { total } } with no venue docs
-async function listOwnerVenues(req, res) {
+async function venueOwnerListVenues(req, res) {
    try {
       const page = parsePageParam(req.query.page, DEFAULT_PAGE);
       const limit = parsePageParam(req.query.limit, DEFAULT_LIMIT);
       const skip = (page - 1) * limit;
 
-      const filter = { owner: req.user._id, deletedAt: null };
+      const filter = { venueOwner: req.user._id, deletedAt: null };
 
       if (req.query.status) {
          const requested = req.query.status.split(",").map(s => s.trim()).filter(s => VENUE_STATUS_VALUES.includes(s));
@@ -34,7 +34,7 @@ async function listOwnerVenues(req, res) {
          const hasCopyStatus = requested.some(s => EDIT_COPY_STATUSES.includes(s));
          if (!hasCopyStatus) filter.editOf = null;
       } else {
-         // No status filter — exclude copies so owner doesn't see duplicates
+         // No status filter — exclude copies so venue owner doesn't see duplicates
          filter.editOf = null;
       }
 
@@ -45,7 +45,7 @@ async function listOwnerVenues(req, res) {
 
       const [venues, total] = await Promise.all([
          Venues.find(filter)
-            .select(OWNER_VENUE_PROJECTION)
+            .select(VENUE_OWNER_VENUE_PROJECTION)
             .populate(CATEGORY_POPULATE)
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -63,4 +63,4 @@ async function listOwnerVenues(req, res) {
    }
 }
 
-module.exports = listOwnerVenues;
+module.exports = venueOwnerListVenues;

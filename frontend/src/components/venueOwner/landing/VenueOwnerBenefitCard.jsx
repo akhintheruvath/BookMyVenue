@@ -1,4 +1,4 @@
-export function OwnerBenefitCard({ icon: Icon, title, text }) {
+export function VenueOwnerBenefitCard({ icon: Icon, title, text }) {
     return (
         <div className="rounded-2xl border border-gray-100 bg-white p-5 drop-shadow-lg hover:shadow-md transition-all">
             <div className="mb-3 inline-flex rounded-lg bg-red-50 p-2 text-red-600">

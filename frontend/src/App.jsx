@@ -4,11 +4,11 @@ import { LoginModal } from './components/shared/LoginModal.jsx';
 import { ToastViewport } from './components/shared/ToastViewport.jsx';
 import { RequireAuth } from './components/shared/RequireAuth.jsx';
 import { UserLayout } from './pages/UserPages/UserLayout.jsx';
-import { VenueOwnerLayout } from './pages/OwnerPage/VenueOwnerLayout.jsx';
+import { VenueOwnerLayout } from './pages/VenueOwnerPage/VenueOwnerLayout.jsx';
 import { AdminLayout } from './pages/AdminPage/AdminLayout.jsx';
 import { Home, Venue, Category,VenueDetails } from './pages/UserPages/UserPages.js';
 import { AdminLogin,AdminHome } from './pages/AdminPage/AdminPages.js';
-import {VenueOwnerLogin,VenueOwnerDashboard,VenueOwnerMyVenues,AddVenuePage,EditVenuePage} from './pages/OwnerPage/VenueOwnerPage.js'
+import {VenueOwnerLogin,VenueOwnerDashboard,VenueOwnerMyVenues,AddVenuePage,EditVenuePage} from './pages/VenueOwnerPage/VenueOwnerPage.js'
 
 function App() {
   return (

@@ -2,23 +2,23 @@ const express = require("express");
 const authenticate = require("../middleware/authenticate");
 const requireRole = require("../middleware/requireRole");
 const { USER_ROLES } = require("../constants/user");
-const listOwnerVenues       = require("../controllers/venue/listOwnerVenues");
-const createOwnerVenue      = require("../controllers/venue/createOwnerVenue");
-const submitOwnerVenue      = require("../controllers/venue/submitOwnerVenue");
-const updateOwnerVenue      = require("../controllers/venue/updateOwnerVenue");
+const venueOwnerListVenues  = require("../controllers/venue/venueOwnerListVenues");
+const venueOwnerCreateVenue = require("../controllers/venue/venueOwnerCreateVenue");
+const venueOwnerSubmitVenue = require("../controllers/venue/venueOwnerSubmitVenue");
+const venueOwnerUpdateVenue = require("../controllers/venue/venueOwnerUpdateVenue");
 const setVenueVisibility    = require("../controllers/venue/setVenueVisibility");
-const deleteOwnerVenue      = require("../controllers/venue/deleteOwnerVenue");
+const venueOwnerDeleteVenue = require("../controllers/venue/venueOwnerDeleteVenue");
 
 const router = express.Router();
 
 // All routes in this file require a valid venueOwner session.
 router.use(authenticate, requireRole(USER_ROLES.VENUE_OWNER));
 
-router.get("/venues",                    listOwnerVenues);
-router.post("/venues",                   createOwnerVenue);
-router.post("/venues/submit/:id",        submitOwnerVenue);
-router.patch("/venues/update/:id",       updateOwnerVenue);
+router.get("/venues",                    venueOwnerListVenues);
+router.post("/venues",                   venueOwnerCreateVenue);
+router.post("/venues/submit/:id",        venueOwnerSubmitVenue);
+router.patch("/venues/update/:id",       venueOwnerUpdateVenue);
 router.patch("/venues/visibility/:id",   setVenueVisibility);
-router.delete("/venues/delete/:id",      deleteOwnerVenue);
+router.delete("/venues/delete/:id",      venueOwnerDeleteVenue);
 
 module.exports = router;

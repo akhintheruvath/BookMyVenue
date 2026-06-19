@@ -8,7 +8,7 @@ import { useAuth } from "../../context/authContext.js";
 // On denial — not logged in, OR logged in with the wrong role — the user is
 // sent to that route's "area". Where that is depends on `loginPath`:
 //
-//   // venue owners only -> denial redirects to the owner login page
+//   // venue owners only -> denial redirects to the venue owner login page
 //   <Route element={<RequireAuth roles={["venueOwner"]} loginPath="/venue-owner" />}>...</Route>
 //
 //   // admins only -> denial redirects to the admin login page
@@ -34,7 +34,7 @@ export function RequireAuth({ roles, loginPath }) {
     const allowed = user && roles.includes(user.role);
     if (allowed) return <Outlet />;
 
-    // Denied. Areas with their own login page (owner/admin) redirect there.
+    // Denied. Areas with their own login page (venue owner/admin) redirect there.
     // Customer-area routes have no page — they fall back to the home page plus
     // the global login modal.
     if (loginPath) {

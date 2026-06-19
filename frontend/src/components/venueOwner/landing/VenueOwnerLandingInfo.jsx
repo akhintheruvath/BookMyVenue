@@ -1,8 +1,8 @@
-import { OWNER_BENEFITS } from "./ownerBenefits.js";
-import { OwnerBenefitCard } from "./OwnerBenefitCard.jsx";
+import { VENUE_OWNER_BENEFITS } from "./venueOwnerBenefits.js";
+import { VenueOwnerBenefitCard } from "./VenueOwnerBenefitCard.jsx";
 
 // The marketing / landing content shown beside the login card.
-export function OwnerLandingInfo() {
+export function VenueOwnerLandingInfo() {
     return (
         <div className="w-full lg:flex-1">
             <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-red-600">
@@ -17,8 +17,8 @@ export function OwnerLandingInfo() {
             </p>
 
             <div className="grid gap-4 sm:grid-cols-2">
-                {OWNER_BENEFITS.map((benefit) => (
-                    <OwnerBenefitCard key={benefit.title} {...benefit} />
+                {VENUE_OWNER_BENEFITS.map((benefit) => (
+                    <VenueOwnerBenefitCard key={benefit.title} {...benefit} />
                 ))}
             </div>
         </div>

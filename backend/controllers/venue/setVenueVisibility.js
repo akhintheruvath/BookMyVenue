@@ -2,17 +2,17 @@ const Venues = require("../../models/venue");
 const { VENUE_STATUS } = require("../../constants/venue");
 
 // PATCH /venueOwner/venues/visibility/:id
-// Toggles the isActive flag on an APPROVED venue (owner-controlled show/hide).
+// Toggles the isActive flag on an APPROVED venue (venue owner-controlled show/hide).
 //
 // Rules:
-//   - Venue must belong to req.user._id (owner check)
+//   - Venue must belong to req.user._id (venue owner check)
 //   - Current status must be APPROVED — only live venues can be toggled
 //   - req.body.isActive must be a boolean
 //
 // TODO:
 //   1. Validate req.body.isActive is strictly a boolean; if not return 400
 //      { message: "isActive must be a boolean" }
-//   2. Find venue by req.params.id where owner === req.user._id and deletedAt === null
+//   2. Find venue by req.params.id where venueOwner === req.user._id and deletedAt === null
 //   3. If not found return 404 { message: "Venue not found" }
 //   4. If venue.status !== VENUE_STATUS.APPROVED return 400
 //      { message: "Only APPROVED venues can be enabled or disabled" }

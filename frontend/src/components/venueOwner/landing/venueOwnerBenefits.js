@@ -1,7 +1,7 @@
 import { Building2, Search, CalendarCheck, Wallet } from "lucide-react";
 
 // marketing benefits shown on the landing side of the venue owner page.
-export const OWNER_BENEFITS = [
+export const VENUE_OWNER_BENEFITS = [
     {
         icon: Building2,
         title: "List venues in minutes",
