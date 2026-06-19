@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { VENUE_STATUS_VALUES, VENUE_STATUS } = require("../constants/venue");
+const { VENUE_STATUS_VALUES, VENUE_STATUSES } = require("../constants/venue");
 
 // Embedded image reference. MVP stores plain URLs only (no upload pipeline for now)
 const venueImageSchema = new mongoose.Schema(
@@ -62,7 +62,7 @@ const venueSchema = new mongoose.Schema(
       status: {
          type: String,
          enum: VENUE_STATUS_VALUES,
-         default: VENUE_STATUS.DRAFT,
+         default: VENUE_STATUSES.DRAFT,
          index: true,
       },
 

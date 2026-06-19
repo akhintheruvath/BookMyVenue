@@ -2,7 +2,7 @@
 // Centralized here so there are no magic strings scattered through the codebase.
 
 // Listing lifecycle. Only APPROVED venues are publicly searchable
-const VENUE_STATUS = {
+const VENUE_STATUSES = {
    DRAFT: "DRAFT",           // Venue owner just created the venue; fields can be filled anytime. Not visible to admin or public.
    PENDING: "PENDING",       // Venue owner submitted the venue; waiting for admin approval. Not yet public.
    APPROVED: "APPROVED",     // Admin approved the venue; visible to the public (if isActive is true).
@@ -15,21 +15,21 @@ const VENUE_STATUS = {
 //   DRAFT  → PENDING          (a new/own venue enters the queue)
 //   EDIT_DRAFT        → CHANGES_PENDING  (a drafted edit copy enters the queue)
 const SUBMITTABLE_STATUSES = Object.freeze([
-   VENUE_STATUS.DRAFT,
-   VENUE_STATUS.EDIT_DRAFT,
+   VENUE_STATUSES.DRAFT,
+   VENUE_STATUSES.EDIT_DRAFT,
 ]);
 
 // Statuses an edit applies in place (the doc isn't live). Covers a new venue's
 // own draft states AND a not-yet-submitted edit copy. APPROVED is absent — editing
 // an APPROVED venue spawns a new EDIT_DRAFT copy instead. AND PENDING, CHANGES_PENDING are submitted versions
 const IN_PLACE_EDIT_STATUSES = Object.freeze([
-   VENUE_STATUS.DRAFT,
-   VENUE_STATUS.EDIT_DRAFT,
+   VENUE_STATUSES.DRAFT,
+   VENUE_STATUSES.EDIT_DRAFT,
 ]);
 
 module.exports = {
-   VENUE_STATUS,
-   VENUE_STATUS_VALUES: Object.values(VENUE_STATUS),
+   VENUE_STATUSES,
+   VENUE_STATUS_VALUES: Object.values(VENUE_STATUSES),
    SUBMITTABLE_STATUSES,
    IN_PLACE_EDIT_STATUSES,
 };

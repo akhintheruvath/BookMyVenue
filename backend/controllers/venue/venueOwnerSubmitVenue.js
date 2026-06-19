@@ -1,5 +1,5 @@
 const Venues = require("../../models/venue");
-const { VENUE_STATUS, SUBMITTABLE_STATUSES } = require("../../constants/venue");
+const { VENUE_STATUSES, SUBMITTABLE_STATUSES } = require("../../constants/venue");
 
 // POST /venueOwner/venues/submit/:id
 // Moves a venue from DRAFT → PENDING or EDIT_DRAFT → CHANGES_PENDING,

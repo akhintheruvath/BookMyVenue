@@ -1,5 +1,5 @@
 const Venues = require("../../models/venue");
-const { VENUE_STATUS } = require("../../constants/venue");
+const { VENUE_STATUSES } = require("../../constants/venue");
 
 // PATCH /venueOwner/venues/visibility/:id
 // Toggles the isActive flag on an APPROVED venue (venue owner-controlled show/hide).
@@ -14,7 +14,7 @@ const { VENUE_STATUS } = require("../../constants/venue");
 //      { message: "isActive must be a boolean" }
 //   2. Find venue by req.params.id where venueOwner === req.user._id and deletedAt === null
 //   3. If not found return 404 { message: "Venue not found" }
-//   4. If venue.status !== VENUE_STATUS.APPROVED return 400
+//   4. If venue.status !== VENUE_STATUSES.APPROVED return 400
 //      { message: "Only APPROVED venues can be enabled or disabled" }
 //   5. Set venue.isActive = req.body.isActive and call venue.save()
 //   6. Return 200 { message: isActive ? "Venue enabled" : "Venue disabled",

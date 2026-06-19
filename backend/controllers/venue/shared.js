@@ -1,11 +1,11 @@
-const { VENUE_STATUS } = require("../../constants/venue");
+const { VENUE_STATUSES } = require("../../constants/venue");
 const Categories = require("../../models/category");
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
 
 const PUBLIC_VENUE_FILTER = {
-   status: VENUE_STATUS.APPROVED,
+   status: VENUE_STATUSES.APPROVED,
    // isActive: true, keep commented for now
    deletedAt: null,
 };

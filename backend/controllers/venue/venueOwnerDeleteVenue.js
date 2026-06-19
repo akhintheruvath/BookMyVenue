@@ -1,5 +1,5 @@
 const Venues = require("../../models/venue");
-const { VENUE_STATUS } = require("../../constants/venue");
+const { VENUE_STATUSES } = require("../../constants/venue");
 
 // DELETE /venueOwner/venues/delete/:id
 // Hard-deletes a DRAFT document OR an EDIT_DRAFT clone document.

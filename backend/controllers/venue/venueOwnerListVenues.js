@@ -1,5 +1,5 @@
 const Venues = require("../../models/venue");
-const { VENUE_STATUS_VALUES, VENUE_STATUS } = require("../../constants/venue");
+const { VENUE_STATUS_VALUES, VENUE_STATUSES } = require("../../constants/venue");
 const {
    DEFAULT_PAGE,
    DEFAULT_LIMIT,
@@ -10,7 +10,7 @@ const {
 
 // Statuses that only exist on edit copies (editOf is set). When these are requested
 // we must NOT filter editOf:null or we'd get zero results.
-const EDIT_COPY_STATUSES = [VENUE_STATUS.EDIT_DRAFT, VENUE_STATUS.CHANGES_PENDING];
+const EDIT_COPY_STATUSES = [VENUE_STATUSES.EDIT_DRAFT, VENUE_STATUSES.CHANGES_PENDING];
 
 // GET /venueOwner/venues — paginated venue owner venue list based on statuses passed.
 // Query params:
