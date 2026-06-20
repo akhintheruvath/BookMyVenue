@@ -20,3 +20,31 @@ export function timeToFraction(time) {
   const [h, m] = time.split(":").map(Number);
   return h + m / 60;
 }
+
+export function getTotalRevenue(venueRevenue) {
+  return venueRevenue.reduce((s, v) => s + v.revenue, 0);
+}
+
+export function getTotalBookings(venueRevenue) {
+  return venueRevenue.reduce((s, v) => s + v.bookings, 0);
+}
+
+export function getMostProfitable(venueRevenue) {
+  return [...venueRevenue].sort((a, b) => b.revenue - a.revenue)[0];
+}
+
+export function getAvgBookingValue(venueRevenue) {
+  const total = getTotalRevenue(venueRevenue);
+  const bookings = getTotalBookings(venueRevenue);
+  return Math.round(total / bookings);
+}
+
+export function getRevenueByCategory(venueRevenue) {
+  const byCategory = venueRevenue.reduce((acc, v) => {
+    acc[v.category] = (acc[v.category] || 0) + v.revenue;
+    return acc;
+  }, {});
+  return Object.entries(byCategory).sort((a, b) => b[1] - a[1]);
+}
+
+export const CATEGORY_COLORS = ["bg-red-500", "bg-blue-500", "bg-green-500", "bg-purple-500"];
