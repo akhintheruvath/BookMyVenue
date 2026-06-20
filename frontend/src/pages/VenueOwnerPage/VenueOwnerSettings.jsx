@@ -1,19 +1,15 @@
-// frontend/src/pages/VenueOwnerPage/VenueOwnerSettings.jsx
 import { useState } from "react";
 import {
     User,
     Mail,
     Phone,
     Lock,
-    Bell,
     Wallet,
     AlertTriangle,
     Eye,
     EyeOff,
     Check,
 } from "lucide-react";
-
-// ─── Hardcoded data ──────────────────────────────────────────────────────────
 
 const OWNER_PROFILE = {
     name: "Sunil Kumar",
@@ -29,7 +25,6 @@ const PAYOUT = {
     ifsc: "HDFC0001234",
 };
 
-// ─── Small shared bits ───────────────────────────────────────────────────────
 
 function SectionCard({ title, description, children }) {
     return (
@@ -75,7 +70,6 @@ function SavedToast({ show }) {
     );
 }
 
-// ─── Profile Information ─────────────────────────────────────────────────────
 
 function ProfileSection() {
     const [form, setForm] = useState(OWNER_PROFILE);
@@ -137,7 +131,6 @@ function ProfileSection() {
     );
 }
 
-// ─── Change Password ──────────────────────────────────────────────────────────
 
 function PasswordSection() {
     const [show, setShow] = useState(false);
@@ -209,8 +202,6 @@ function PasswordSection() {
         </SectionCard>
     );
 }
-
-// ─── Notification Preferences ────────────────────────────────────────────────
 
 function ToggleRow({ title, description, checked, onChange }) {
     return (
@@ -287,8 +278,6 @@ function NotificationsSection() {
     );
 }
 
-// ─── Payout Details ───────────────────────────────────────────────────────────
-
 function PayoutSection() {
     return (
         <SectionCard
@@ -310,8 +299,6 @@ function PayoutSection() {
         </SectionCard>
     );
 }
-
-// ─── Danger Zone: Delete Account ─────────────────────────────────────────────
 
 function DeleteAccountSection() {
     const [open, setOpen] = useState(false);
@@ -380,7 +367,6 @@ function DeleteAccountSection() {
     );
 }
 
-// ─── Page ────────────────────────────────────────────────────────────────────
 
 export function VenueOwnerSettings() {
     return (

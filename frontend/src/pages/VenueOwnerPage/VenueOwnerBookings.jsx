@@ -1,4 +1,3 @@
-// frontend/src/pages/VenueOwnerPage/VenueOwnerBookings.jsx
 import { useMemo, useState } from "react";
 import {
   CalendarCheck,
@@ -7,17 +6,13 @@ import {
   Users,
   ChevronLeft,
   ChevronRight,
-  MapPin,
   X,
 } from "lucide-react";
-
-// ─── Hardcoded data ──────────────────────────────────────────────────────────
 
 const TODAY = new Date();
 const Y = TODAY.getFullYear();
 const M = TODAY.getMonth();
 
-// Bookings keyed by "YYYY-MM-DD"
 const BOOKINGS = {
   [fmtKey(Y, M, 3)]: [
     { id: "b1", venue: "Royal Grand Hall", customer: "Rahul Menon", start: "10:00", end: "14:00", guests: 220, amount: 65000, status: "confirmed" },
@@ -63,7 +58,6 @@ function statusStyle(status) {
   return map[status] ?? "bg-gray-100 text-gray-600";
 }
 
-// ─── Stat cards (top) ────────────────────────────────────────────────────────
 
 function StatCard({ icon: Icon, title, value, sub, iconBg, iconColor }) {
   return (
@@ -79,8 +73,6 @@ function StatCard({ icon: Icon, title, value, sub, iconBg, iconColor }) {
     </div>
   );
 }
-
-// ─── Calendar ────────────────────────────────────────────────────────────────
 
 function MiniCalendar({ year, month, onMonthChange, bookingsByDay, selectedDay, onSelectDay }) {
   const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0 = Sun
@@ -159,11 +151,9 @@ function MiniCalendar({ year, month, onMonthChange, bookingsByDay, selectedDay, 
   );
 }
 
-// ─── Day schedule (airport-gate-style timeline) ─────────────────────────────
-
-const SCHEDULE_START = 6;  // 6 AM
-const SCHEDULE_END = 23;   // 11 PM
-const HOUR_WIDTH = 64;     // px per hour column
+const SCHEDULE_START = 6;  
+const SCHEDULE_END = 23;   
+const HOUR_WIDTH = 64;     
 
 function timeToFraction(time) {
   const [h, m] = time.split(":").map(Number);
@@ -208,7 +198,7 @@ function DaySchedule({ dayKey, bookings, onClose }) {
       )}
 
       {dayKey && bookings.length > 0 && (
-        // This is the ONLY element allowed to scroll horizontally.
+        
         <div className="max-w-full overflow-x-auto">
           <div style={{ minWidth: 160 + hours.length * HOUR_WIDTH }}>
             {/* Hour ruler */}
@@ -224,7 +214,7 @@ function DaySchedule({ dayKey, bookings, onClose }) {
               ))}
             </div>
 
-            {/* Rows — one per venue with a booking that day */}
+           
             <div className="mt-3 space-y-3">
               {bookings.map((b) => {
                 const startFrac = Math.max(timeToFraction(b.start), SCHEDULE_START);
@@ -282,8 +272,6 @@ function DaySchedule({ dayKey, bookings, onClose }) {
   );
 }
 
-// ─── Booking history ─────────────────────────────────────────────────────────
-
 function BookingHistory() {
   return (
     <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -311,8 +299,6 @@ function BookingHistory() {
     </div>
   );
 }
-
-// ─── Page ────────────────────────────────────────────────────────────────────
 
 export function VenueOwnerBookings() {
   const [viewYear, setViewYear] = useState(Y);
@@ -347,7 +333,7 @@ export function VenueOwnerBookings() {
         </p>
       </section>
 
-      {/* Stat cards — max 4 */}
+     
       <section>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <StatCard
@@ -385,7 +371,6 @@ export function VenueOwnerBookings() {
         </div>
       </section>
 
-      {/* Calendar + day schedule */}
       <section className="grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]">
         <MiniCalendar
           year={viewYear}
@@ -402,7 +387,6 @@ export function VenueOwnerBookings() {
         />
       </section>
 
-      {/* History */}
       <section>
         <BookingHistory />
       </section>
