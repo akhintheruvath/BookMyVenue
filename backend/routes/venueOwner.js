@@ -3,6 +3,7 @@ const authenticate = require("../middleware/authenticate");
 const requireRole = require("../middleware/requireRole");
 const { USER_ROLES } = require("../constants/user");
 const venueOwnerListVenues  = require("../controllers/venue/venueOwnerListVenues");
+const venueOwnerGetVenueById = require("../controllers/venue/venueOwnerGetVenueById");
 const venueOwnerCreateVenue = require("../controllers/venue/venueOwnerCreateVenue");
 const venueOwnerSubmitVenue = require("../controllers/venue/venueOwnerSubmitVenue");
 const venueOwnerUpdateVenue = require("../controllers/venue/venueOwnerUpdateVenue");
@@ -15,6 +16,7 @@ const router = express.Router();
 router.use(authenticate, requireRole(USER_ROLES.VENUE_OWNER));
 
 router.get("/venues",                    venueOwnerListVenues);
+router.get("/venues/:id",                venueOwnerGetVenueById);
 router.post("/venues",                   venueOwnerCreateVenue);
 router.post("/venues/submit/:id",        venueOwnerSubmitVenue);
 router.patch("/venues/update/:id",       venueOwnerUpdateVenue);

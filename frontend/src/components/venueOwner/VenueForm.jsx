@@ -1,6 +1,35 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { getVenueCategories } from "../../services/venueCategory.service.js";
+
+const AUTOSAVE_DELAY_MS = 2000;
+
+// Builds the API payload from raw RHF values. Autosave persists whatever the
+// owner has typed — including blanks (so clearing a field is saved) and
+// format-invalid values — since a draft may be incomplete. Number fields are
+// enforced numeric at the input level, so they coerce cleanly here (empty → null
+// to clear). Used by both autosave and the final submit.
+function buildPayload(data) {
+    const payload = {
+        name:          (data.name ?? "").trim(),
+        description:   (data.description ?? "").trim(),
+        venueCategory: data.venueCategory || "",
+        addressLine:   (data.addressLine ?? "").trim(),
+        city:          (data.city ?? "").trim(),
+        district:      data.district || "",
+        state:         (data.state ?? "").trim(),
+        pincode:       (data.pincode ?? "").trim(),
+        // With valueAsNumber, an empty/invalid number input yields NaN — store
+        // null in that case
+        capacity:      Number.isFinite(data.capacity) ? data.capacity : null,
+        basePrice:     Number.isFinite(data.basePrice) ? data.basePrice : null,
+        location:
+            data.latitude && data.longitude
+                ? { type: "Point", coordinates: [parseFloat(data.longitude), parseFloat(data.latitude)] }
+                : null,
+    };
+    return payload;
+}
 
 const KERALA_DISTRICTS = [
     "Thiruvananthapuram", "Kollam", "Pathanamthitta", "Alappuzha",
@@ -15,6 +44,12 @@ function FieldError({ error }) {
     return <p className="mt-1.5 text-sm text-red-600">{error.message}</p>;
 }
 
+// Blocks characters type="number" still permits (e, E, +, -) plus the decimal
+// point for integer fields — so number inputs only ever hold digits.
+function blockNonInteger(e) {
+    if (["e", "E", "+", "-", "."].includes(e.key)) e.preventDefault();
+}
+
 function inputCls(hasError) {
     return (
         "w-full rounded-lg border px-4 py-2.5 text-sm text-gray-900 " +
@@ -27,17 +62,25 @@ function inputCls(hasError) {
 
 // ----------------------------------------------------------------------------
 
-export default function VenueForm({ mode = "create", initialValues = {}, onSubmit }) {
+export default function VenueForm({ initialValues = {}, onAutosave, onSubmit, onContinueLater }) {
     const [categories, setCategories] = useState([]);
     const [loadingCategories, setLoadingCategories] = useState(true);
     const [imageFiles, setImageFiles] = useState([]);   // new uploads
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState("");
-    const [activeIntent, setActiveIntent] = useState("draft");
+    // "idle" | "saving" | "saved" — drives the subtle autosave indicator.
+    const [saveStatus, setSaveStatus] = useState("idle");
+    // True from the moment an edit arms the debounce timer until that autosave
+    // settles — used to block "Continue Editing Later" so a pending save isn't
+    // dropped by navigating away.
+    const [pendingSave, setPendingSave] = useState(false);
 
     const {
         register,
         handleSubmit,
+        trigger,
+        subscribe,
+        getValues,
         formState: { errors },
     } = useForm({
         defaultValues: {
@@ -72,39 +115,84 @@ export default function VenueForm({ mode = "create", initialValues = {}, onSubmi
         loadCategories();
     }, []);
 
+    // ── Autosave ─────────────────────────────────────────────────────────────
+    // Debounced ~2s after the user stops typing. The full payload is saved as-is
+    // (including blank/invalid values — a draft may be incomplete; the submit
+    // endpoint is the validation gate), skipping the API call when nothing changed
+    // since the last save. The parent's onAutosave performs the PATCH; we only
+    // drive the "saving"/"saved" indicator here.
+    const lastSavedRef = useRef("");      // JSON snapshot of the last payload we sent
+    const onAutosaveRef = useRef(onAutosave);
+    onAutosaveRef.current = onAutosave;
+    // Fields changed since the last autosave — each cycle validates only these
+    // (see runAutosave). Because trigger() is additive, errors accumulate across
+    // cycles, so every edited field stays flagged while untouched fields stay quiet.
+    const dirtyFieldsRef = useRef(new Set());
+
+    useEffect(() => {
+        if (!onAutosave) return;
+        const unsubscribe = subscribe({
+            formState: { values: true },
+            callback: ({ name }) => {
+                if (name) dirtyFieldsRef.current.add(name);
+                if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+                setPendingSave(true);
+                autosaveTimer.current = setTimeout(runAutosave, AUTOSAVE_DELAY_MS);
+            },
+        });
+        return () => {
+            unsubscribe();
+            if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+        };
+        // runAutosave is intentionally omitted — including it would re-subscribe
+        // the listener on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [subscribe, onAutosave]);
+
+    const autosaveTimer = useRef(null);
+
+    async function runAutosave() {
+        // Cleared once this run settles (any exit path) so "Continue Editing
+        // Later" re-enables only after the pending save is resolved.
+        try {
+            const payload = buildPayload(getValues());
+
+            // Validate only the fields changed this cycle. trigger() is additive
+            // — it updates the errors for just these fields and leaves all other
+            // entries in formState.errors untouched. So errors accumulate: every
+            // field the user has edited since opening the form keeps showing its
+            // error until that field is re-validated as valid, while fields never
+            // touched stay quiet. We save regardless of validity (a draft may be
+            // incomplete; the submit endpoint is the gate)
+            const changedFields = [...dirtyFieldsRef.current];
+            dirtyFieldsRef.current.clear();
+            if (changedFields.length) trigger(changedFields);
+
+            const snapshot = JSON.stringify(payload);
+            if (snapshot === lastSavedRef.current) return;   // nothing changed
+
+            setSaveStatus("saving");
+            try {
+                await onAutosaveRef.current(payload);
+                lastSavedRef.current = snapshot;
+                setSaveStatus("saved");
+            } catch {
+                // api client already toasts; reset the indicator so it isn't stuck on "saving".
+                setSaveStatus("idle");
+            }
+        } finally {
+            setPendingSave(false);
+        }
+    }
+
+    // "Submit for Approval" — full validation gate, then hand the complete payload up.
     async function handleFormSubmit(data) {
         if (!onSubmit) return;
 
         setSubmitting(true);
         setSubmitError("");
-
-        const payload = {
-            name:           data.name.trim(),
-            description:    data.description.trim(),
-            venueCategory:  data.venueCategory,
-            capacity:       Number(data.capacity),
-            basePrice:      Number(data.basePrice),
-            addressLine:    data.addressLine.trim(),
-            city:           data.city.trim(),
-            district:       data.district,
-            state:          data.state.trim(),
-            pincode:        data.pincode.trim(),
-            ...(data.latitude && data.longitude
-                ? {
-                    location: {
-                        type: "Point",
-                        coordinates: [
-                            parseFloat(data.longitude),
-                            parseFloat(data.latitude),
-                        ],
-                    },
-                  }
-                : {}),
-            imageFiles,   // caller decides how to upload
-        };
-
         try {
-            await onSubmit(payload, activeIntent);
+            await onSubmit({ ...buildPayload(data), imageFiles });
         } catch (err) {
             setSubmitError(err.message || "Something went wrong. Please try again.");
         } finally {
@@ -112,23 +200,50 @@ export default function VenueForm({ mode = "create", initialValues = {}, onSubmi
         }
     }
 
-    function triggerSubmit(intent) {
-        setActiveIntent(intent);
-        handleSubmit(handleFormSubmit)();
-    }
-
     return (
         <div className="space-y-8">
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                    {mode === "edit" ? "Edit Venue" : "Add New Venue"}
-                </h1>
-                <p className="mt-1 text-sm text-gray-500">
-                    {mode === "edit"
-                        ? "Update your venue information."
-                        : "Create a venue listing and submit it for approval."}
-                </p>
+            {/* Header — title + autosave indicator on the left, actions top-right */}
+            <div className="flex items-start justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">
+                        {initialValues.status === "DRAFT" ? "Add Venue" : "Edit Venue"}
+                    </h1>
+                    {/* Subtle autosave indicator, directly under the title */}
+                    <p className="mt-1 h-5 text-sm">
+                        {saveStatus === "saving" && (
+                            <span className="text-gray-400">Saving…</span>
+                        )}
+                        {saveStatus === "saved" && (
+                            <span className="text-green-600">Saved</span>
+                        )}
+                        {saveStatus === "idle" && (
+                            <span className="text-gray-400">Changes save automatically.</span>
+                        )}
+                    </p>
+                </div>
+
+                <div className="flex shrink-0 items-center gap-3">
+                    <button
+                        type="button"
+                        disabled={submitting || pendingSave}
+                        onClick={onContinueLater}
+                        className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700
+                            transition hover:border-gray-400 hover:bg-gray-50
+                            disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        Continue Editing Later
+                    </button>
+                    <button
+                        type="button"
+                        disabled={submitting}
+                        onClick={handleSubmit(handleFormSubmit)}
+                        className="rounded-lg bg-red-600 px-5 py-2.5 text-sm font-medium text-white
+                            transition hover:bg-red-700
+                            disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        {submitting ? "Submitting…" : "Submit for Approval"}
+                    </button>
+                </div>
             </div>
 
             {/* Global submit error */}
@@ -222,6 +337,7 @@ export default function VenueForm({ mode = "create", initialValues = {}, onSubmi
                             type="number"
                             min="1"
                             placeholder="e.g. 500"
+                            onKeyDown={blockNonInteger}
                             className={inputCls(errors.capacity)}
                             {...register("capacity", {
                                 required: "Capacity is required",
@@ -241,6 +357,7 @@ export default function VenueForm({ mode = "create", initialValues = {}, onSubmi
                             type="number"
                             min="0"
                             placeholder="e.g. 50000"
+                            onKeyDown={blockNonInteger}
                             className={inputCls(errors.basePrice)}
                             {...register("basePrice", {
                                 required: "Base price is required",
@@ -353,14 +470,10 @@ export default function VenueForm({ mode = "create", initialValues = {}, onSubmi
                 </div>
             </section>
 
-            {/* ── Coordinates (optional) ────────────────────────────────── */}
             <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 className="mb-1 text-lg font-semibold text-gray-900">
+                <h2 className="mb-5 text-lg font-semibold text-gray-900">
                     Coordinates
                 </h2>
-                <p className="mb-5 text-sm text-gray-500">
-                    Optional — used to show the venue on a map.
-                </p>
 
                 <div className="grid gap-4 md:grid-cols-2">
                     <div>
@@ -422,8 +535,8 @@ export default function VenueForm({ mode = "create", initialValues = {}, onSubmi
                     onChange={(e) => setImageFiles(Array.from(e.target.files))}
                 />
 
-                {/* Existing images (edit mode) */}
-                {mode === "edit" && initialValues.images?.length > 0 && (
+                {/* Existing images */}
+                {initialValues.images?.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-3">
                         {initialValues.images.map((img, i) => (
                             <img
@@ -471,36 +584,7 @@ export default function VenueForm({ mode = "create", initialValues = {}, onSubmi
                 )}
             </section>
 
-            {/* ── Actions ───────────────────────────────────────────────── */}
-            <div className="flex items-center justify-end gap-3 pb-8">
-                <button
-                    type="button"
-                    disabled={submitting}
-                    onClick={() => triggerSubmit("draft")}
-                    className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700
-                        transition hover:border-gray-400 hover:bg-gray-50
-                        disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    {submitting && activeIntent === "draft"
-                        ? "Saving…"
-                        : "Save as Draft"}
-                </button>
-
-                <button
-                    type="button"
-                    disabled={submitting}
-                    onClick={() => triggerSubmit("submit")}
-                    className="rounded-lg bg-red-600 px-5 py-2.5 text-sm font-medium text-white
-                        transition hover:bg-red-700
-                        disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    {submitting && activeIntent === "submit"
-                        ? "Submitting…"
-                        : mode === "edit"
-                        ? "Save Changes"
-                        : "Submit for Approval"}
-                </button>
-            </div>
+            <div className="pb-8" />
         </div>
     );
 }

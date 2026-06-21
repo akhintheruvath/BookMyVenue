@@ -4,7 +4,7 @@ const {
    DEFAULT_PAGE,
    DEFAULT_LIMIT,
    CATEGORY_POPULATE,
-   VENUE_OWNER_VENUE_PROJECTION,
+   OWNER_HIDDEN_FIELDS,
    parsePageParam,
 } = require("./shared");
 
@@ -45,7 +45,7 @@ async function venueOwnerListVenues(req, res) {
 
       const [venues, total] = await Promise.all([
          Venues.find(filter)
-            .select(VENUE_OWNER_VENUE_PROJECTION)
+            .select(OWNER_HIDDEN_FIELDS)
             .populate(CATEGORY_POPULATE)
             .sort({ createdAt: -1 })
             .skip(skip)

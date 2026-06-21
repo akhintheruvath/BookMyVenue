@@ -1,21 +1,29 @@
 import { api } from '../api/client.js';
 
-export const getOwnerVenues = async ({ status, page = 1, limit = 10 } = {}) => {
+export const getVenueOwnerVenues = async ({ status, page = 1, limit = 10 } = {}) => {
   const params = new URLSearchParams({ page, limit });
   if (status) params.set('status', status);
   const res = await api.get(`/venueOwner/venues?${params}`);
   return res; // { data, pagination }
 };
 
-export const getOwnerVenueCount = async ({ status } = {}) => {
+export const getVenueOwnerVenuesCount = async ({ status } = {}) => {
   const params = new URLSearchParams({ countOnly: 'true' });
   if (status) params.set('status', status);
   const res = await api.get(`/venueOwner/venues?${params}`);
   return res.data.total;
 };
 
-export const addVenue = async (payload) => {
-  const res = await api.post('/venueOwner/venues', payload);
+// Fetches one of the owner's own venues in any status (incl. DRAFT)
+export const getVenueOwnerVenueById = async (id) => {
+  const res = await api.get(`/venueOwner/venues/${id}`);
+  return res.data;
+};
+
+// Creates an empty DRAFT venue and returns the created doc ({ _id, status, ... }).
+// The form is then filled on the edit page, which autosaves via updateVenue().
+export const createDraftVenue = async () => {
+  const res = await api.post('/venueOwner/venues');
   return res.data;
 };
 

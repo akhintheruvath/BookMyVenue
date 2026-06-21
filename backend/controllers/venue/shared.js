@@ -67,8 +67,8 @@ async function buildVenueFilter({ district, category, minPrice, maxPrice } = {})
    return filter;
 }
 
-// Venue owner-side projection — includes management fields not exposed publicly.
-const VENUE_OWNER_VENUE_PROJECTION = "name description venueCategory capacity addressLine state district city pincode location basePrice images status isActive editOf createdAt updatedAt";
+// Venue owner-side projection
+const OWNER_HIDDEN_FIELDS = "-deletedAt -__v";
 
 // Fields a venue owner may set on a venue. Never spread req.body directly — pick from this list
 // so venueOwner/status/editOf/isActive cannot be client-set.
@@ -84,7 +84,7 @@ module.exports = {
    PUBLIC_VENUE_FILTER,
    PUBLIC_FIELDS,
    CATEGORY_POPULATE,
-   VENUE_OWNER_VENUE_PROJECTION,
+   OWNER_HIDDEN_FIELDS,
    EDITABLE_VENUE_FIELDS,
    parsePageParam,
    buildVenueFilter,

@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import VenueForm from "../../components/venueOwner/VenueForm.jsx";
-import { getVenueById } from "../../services/venue.service.js";
-import { updateVenue } from "../../services/venueOwner.service.js";
+import { getVenueOwnerVenueById, updateVenue, submitVenue } from "../../services/venueOwner.service.js";
 
 export function EditVenuePage() {
     const { id } = useParams();
@@ -15,8 +14,8 @@ export function EditVenuePage() {
     useEffect(() => {
         async function loadVenue() {
             try {
-                const response = await getVenueById(id);
-                setVenue(response.data);
+                const data = await getVenueOwnerVenueById(id);
+                setVenue(data);
             } catch (err) {
                 setLoadError(err.message || "Failed to load venue.");
             } finally {
@@ -26,9 +25,19 @@ export function EditVenuePage() {
         loadVenue();
     }, [id]);
 
-    // `intent` is "draft" | "submit" — passed from VenueForm's button clicks.
-    async function handleSubmit(payload, intent) {
-        await updateVenue(id, { ...payload, intent });
+    // Debounced autosave from the form — persists partial draft fields.
+    async function handleAutosave(fields) {
+        await updateVenue(id, fields);
+    }
+
+    // "Submit for Approval"
+    async function handleSubmit(payload) {
+        await updateVenue(id, payload);
+        await submitVenue(id);
+        navigate("/venue-owner/my-venues");
+    }
+
+    function handleContinueLater() {
         navigate("/venue-owner/my-venues");
     }
 
@@ -50,9 +59,10 @@ export function EditVenuePage() {
 
     return (
         <VenueForm
-            mode="edit"
             initialValues={venue}
+            onAutosave={handleAutosave}
             onSubmit={handleSubmit}
+            onContinueLater={handleContinueLater}
         />
     );
 }
