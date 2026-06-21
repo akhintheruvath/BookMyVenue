@@ -1,30 +1,50 @@
 const Venues = require("../../models/venue");
 const { VENUE_STATUSES, SUBMITTABLE_STATUSES } = require("../../constants/venue");
+const { missingRequiredVenueFields } = require("./shared");
+
+// DRAFT enters the new-venue queue; EDIT_DRAFT enters the re-approval queue.
+const NEXT_STATUS_ON_SUBMIT = {
+   [VENUE_STATUSES.DRAFT]: VENUE_STATUSES.PENDING,
+   [VENUE_STATUSES.EDIT_DRAFT]: VENUE_STATUSES.CHANGES_PENDING,
+};
 
 // POST /venueOwner/venues/submit/:id
 // Moves a venue from DRAFT → PENDING or EDIT_DRAFT → CHANGES_PENDING,
-// putting it in the admin review.
-//
-// Rules:
-//   - Venue must belong to req.user._id (venue owner check)
-//   - Current status must be in SUBMITTABLE_STATUSES (DRAFT or EDIT_DRAFT)
-//   - DRAFT      → set status to PENDING
-//   - EDIT_DRAFT → set status to CHANGES_PENDING
-//
-// TODO:
-//   1. Find venue by req.params.id where venueOwner === req.user._id and deletedAt === null
-//   2. If not found return 404 { message: "Venue not found" }
-//   3. If venue.status not in SUBMITTABLE_STATUSES return 400
-//      { message: "Only DRAFT or EDIT_DRAFT venues can be submitted" }
-//   4. Determine next status:
-//        DRAFT      → PENDING
-//        EDIT_DRAFT → CHANGES_PENDING
-//   5. Set venue.status to next status, call venue.save()
-//   6. Return 200 { message: "Venue submitted for review", data: { status: venue.status } }
-//   7. On error return 500 { message: "Failed to submit venue" }
+// putting it in the admin review queue. Drafts persist incomplete, so this is
+// the completeness gate: all REQUIRED_VENUE_FIELDS must be filled before submit.
 async function venueOwnerSubmitVenue(req, res) {
-   // TODO: implement
-   return res.status(501).json({ message: "Not implemented" });
+   try {
+      const venue = await Venues.findOne({
+         _id: req.params.id,
+         venueOwner: req.user._id,
+         deletedAt: null,
+      });
+      if (!venue) return res.status(404).json({ message: "Venue not found" });
+
+      if (!SUBMITTABLE_STATUSES.includes(venue.status)) {
+         return res.status(400).json({
+            message: `Only venues with status "DRAFT" or "EDIT_DRAFT" can be submitted`,
+         });
+      }
+
+      const missingFields = missingRequiredVenueFields(venue);
+      if (missingFields.length) {
+         return res.status(400).json({
+            message: "Required fields are missing",
+            missingFields,
+         });
+      }
+
+      venue.status = NEXT_STATUS_ON_SUBMIT[venue.status];
+      await venue.save();
+
+      return res.status(200).json({
+         message: "Venue submitted for review",
+         data: { status: venue.status },
+      });
+   } catch (err) {
+      return res.status(500).json({ error: err.message, message: "Failed to submit venue" });
+   }
 }
 
 module.exports = venueOwnerSubmitVenue;

@@ -1,7 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus } from "lucide-react";
-import { getOwnerVenues, getOwnerVenueCount, submitVenue, setVenueVisibility, deleteVenue } from '../../services/venueOwner.service.js';
+import {
+  getVenueOwnerVenues,
+  getVenueOwnerVenuesCount,
+  createDraftVenue,
+  submitVenue,
+  setVenueVisibility,
+  deleteVenue,
+} from "../../services/venueOwner.service.js";
 import VenueTable from '../../components/venueOwner/VenueTable.jsx';
 import DashboardTabs, { TABS, getEmptyTabText } from '../../components/venueOwner/DashboardTabs.jsx';
 
@@ -27,6 +34,7 @@ export function VenueOwnerMyVenues() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(TABS[0].key);
   const [tabState, setTabState] = useState(initTabState);
+  const [creating, setCreating] = useState(false);
 
   function setTab(key, patch) {
     setTabState(prev => ({ ...prev, [key]: { ...prev[key], ...patch } }));
@@ -34,7 +42,7 @@ export function VenueOwnerMyVenues() {
 
   async function fetchCounts() {
     const results = await Promise.allSettled(
-      TABS.map(t => getOwnerVenueCount({ status: t.statuses.join(',') }))
+      TABS.map(t => getVenueOwnerVenuesCount({ status: t.statuses.join(',') }))
     );
     results.forEach((result, i) => {
       if (result.status === 'fulfilled') {
@@ -47,7 +55,7 @@ export function VenueOwnerMyVenues() {
     const tab = TABS.find(t => t.key === tabKey);
     setTab(tabKey, { loading: true, error: '' });
     try {
-      const res = await getOwnerVenues({ status: tab.statuses.join(','), page, limit: PAGE_LIMIT });
+      const res = await getVenueOwnerVenues({ status: tab.statuses.join(','), page, limit: PAGE_LIMIT });
       setTab(tabKey, {
         venues: res.data,
         page: res.pagination.page,
@@ -76,6 +84,20 @@ export function VenueOwnerMyVenues() {
 
   function handlePageChange(page) {
     fetchTab(activeTab, page);
+  }
+
+  // Create an empty DRAFT, then go straight to the edit form for it. The form
+  // autosaves field changes, so no data is collected before the redirect.
+  // (The api client toasts the error on failure.)
+  async function handleAddVenue() {
+    if (creating) return;
+    setCreating(true);
+    try {
+      const venue = await createDraftVenue();
+      navigate(`/venue-owner/venues/edit/${venue._id}`);
+    } catch {
+      setCreating(false);
+    }
   }
 
   async function handleAction(action, venue) {
@@ -108,10 +130,11 @@ export function VenueOwnerMyVenues() {
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-900">My Venues</h1>
         <button
-        onClick={() => navigate('/venue-owner/venues/new')}
-          className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700">
+          onClick={handleAddVenue}
+          disabled={creating}
+          className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60">
           <Plus size={16} />
-          Add Venue
+          {creating ? 'Creating…' : 'Add Venue'}
         </button>
       </div>
 

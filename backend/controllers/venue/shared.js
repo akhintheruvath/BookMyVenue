@@ -67,8 +67,8 @@ async function buildVenueFilter({ district, category, minPrice, maxPrice } = {})
    return filter;
 }
 
-// Venue owner-side projection — includes management fields not exposed publicly.
-const VENUE_OWNER_VENUE_PROJECTION = "name description venueCategory capacity addressLine state district city pincode location basePrice images status isActive editOf createdAt updatedAt";
+// Venue owner-side projection
+const OWNER_HIDDEN_FIELDS = "-deletedAt -__v";
 
 // Fields a venue owner may set on a venue. Never spread req.body directly — pick from this list
 // so venueOwner/status/editOf/isActive cannot be client-set.
@@ -78,14 +78,39 @@ const EDITABLE_VENUE_FIELDS = [
    "location", "basePrice", "images",
 ];
 
+// Fields that must be present before a draft can be submitted for review.
+// Drafts persist incomplete (model fields default to "" / null), so completeness
+// is enforced here at submit time. `location` and `images`
+// are intentionally omitted — coordinates are optional and images are not yet
+// part of the MVP upload pipeline.
+const REQUIRED_VENUE_FIELDS = [
+   "name", "description", "venueCategory", "capacity",
+   "addressLine", "city", "district", "state", "pincode", "basePrice",
+];
+
+// Returns the REQUIRED_VENUE_FIELDS that are missing/empty on a venue document.
+// Empty string, null, undefined, and NaN all count as missing; a 0 capacity or
+// price is allowed through here (the schema's min:0 governs range separately).
+function missingRequiredVenueFields(venue) {
+   return REQUIRED_VENUE_FIELDS.filter((field) => {
+      const value = venue[field];
+      if (value === null || value === undefined) return true;
+      if (typeof value === "string" && value.trim() === "") return true;
+      if (typeof value === "number" && Number.isNaN(value)) return true;
+      return false;
+   });
+}
+
 module.exports = {
    DEFAULT_PAGE,
    DEFAULT_LIMIT,
    PUBLIC_VENUE_FILTER,
    PUBLIC_FIELDS,
    CATEGORY_POPULATE,
-   VENUE_OWNER_VENUE_PROJECTION,
+   OWNER_HIDDEN_FIELDS,
    EDITABLE_VENUE_FIELDS,
+   REQUIRED_VENUE_FIELDS,
+   missingRequiredVenueFields,
    parsePageParam,
    buildVenueFilter,
 };

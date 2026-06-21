@@ -8,9 +8,15 @@ import { VenueOwnerLayout } from './pages/VenueOwnerPage/VenueOwnerLayout.jsx';
 import { AdminLayout } from './pages/AdminPage/AdminLayout.jsx';
 import { Home, Venue, Category,VenueDetails } from './pages/UserPages/UserPages.js';
 import { AdminLogin,AdminHome } from './pages/AdminPage/AdminPages.js';
-import {VenueOwnerLogin,VenueOwnerDashboard,VenueOwnerMyVenues,
-        AddVenuePage,EditVenuePage, VenueOwnerBookings,
-        VenueOwnerAnalytics, VenueOwnerSettings} from './pages/VenueOwnerPage/VenueOwnerPage.js'
+import {
+  VenueOwnerLogin,
+  VenueOwnerDashboard,
+  VenueOwnerMyVenues,
+  EditVenuePage,
+  VenueOwnerBookings,
+  VenueOwnerAnalytics,
+  VenueOwnerSettings,
+} from "./pages/VenueOwnerPage/VenueOwnerPage.js";
 
 function App() {
   return (
@@ -34,7 +40,6 @@ function App() {
           <Route element={<VenueOwnerLayout />}>
             <Route path='/venue-owner/dashboard' element={<VenueOwnerDashboard />} />
             <Route path='/venue-owner/my-venues' element={<VenueOwnerMyVenues />} />
-            <Route path='/venue-owner/venues/new' element={<AddVenuePage />} />
             <Route path='/venue-owner/venues/edit/:id' element={<EditVenuePage />} />
             <Route path='/venue-owner/bookings' element={<VenueOwnerBookings />} />
             <Route path='/venue-owner/analytics' element={<VenueOwnerAnalytics />} />

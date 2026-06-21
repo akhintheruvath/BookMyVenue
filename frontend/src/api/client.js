@@ -50,8 +50,9 @@ async function request(path, options = {}) {
 
   if (!res.ok) {
     let detail = res.statusText;
+    let body = null;
     try {
-      const body = await res.json();
+      body = await res.json();
       detail = body.message || detail;
     } catch {
       // response had no JSON body; keep statusText
@@ -64,7 +65,12 @@ async function request(path, options = {}) {
       onUnauthorized();
     }
     showError(detail);
-    throw new Error(`API error ${res.status}: ${detail}`);
+    const error = new Error(`API error ${res.status}: ${detail}`);
+    // Preserve the structured response so callers can react to it — e.g. submit
+    // returns { missingFields: [...] } for per-field form highlighting.
+    error.status = res.status;
+    error.data = body;
+    throw error;
   }
 
   return res.json()

@@ -4,7 +4,7 @@ const { EDITABLE_VENUE_FIELDS } = require("./shared");
 
 // PATCH /venueOwner/venues/update/:id
 // Autosave endpoint — partial update of a DRAFT or EDIT_DRAFT venue.
-// Called debounced (~1s after the user stops typing) from the edit form.
+// Called debounced (~2s after the user stops typing) from the edit form.
 //
 // Rules:
 //   - Venue must belong to req.user._id (venue owner check)
@@ -24,8 +24,30 @@ const { EDITABLE_VENUE_FIELDS } = require("./shared");
 //   6. Return 200 { message: "Venue saved", data: { updatedAt: venue.updatedAt } }
 //   7. On error return 500 { message: "Failed to update venue" }
 async function venueOwnerUpdateVenue(req, res) {
-   // TODO: implement
-   return res.status(501).json({ message: "Not implemented" });
+   try {
+      const venue = await Venues.findOne({
+         _id: req.params.id,
+         venueOwner: req.user._id,
+         deletedAt: null,
+      });
+      if (!venue) return res.status(404).json({ message: "Venue not found" });
+
+      if (!IN_PLACE_EDIT_STATUSES.includes(venue.status)) {
+         return res.status(400).json({ message: "Only venues with status DRAFT or EDIT_DRAFT can be edited" });
+      }
+
+      for (const field of EDITABLE_VENUE_FIELDS) {
+         if (Object.hasOwn(req.body, field)) venue[field] = req.body[field];
+      }
+
+      // Autosave persists whatever the venue owner typed (a draft can be half-finished).
+      // Schema validators are skipped here; the submit API fully validates
+      // when they submit.
+      await venue.save({ validateBeforeSave: false });
+      return res.status(200).json({ message: "Venue saved", data: { updatedAt: venue.updatedAt } });
+   } catch (err) {
+      return res.status(500).json({ error: err.message, message: "Failed to update venue" });
+   }
 }
 
 module.exports = venueOwnerUpdateVenue;
