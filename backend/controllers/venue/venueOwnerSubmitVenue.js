@@ -1,6 +1,6 @@
 const Venues = require("../../models/venue");
 const { VENUE_STATUSES, SUBMITTABLE_STATUSES } = require("../../constants/venue");
-const { missingRequiredVenueFields } = require("./shared");
+const { missingRequiredVenueFields, statusNotAllowedMessage } = require("./shared");
 
 // DRAFT enters the new-venue queue; EDIT_DRAFT enters the re-approval queue.
 const NEXT_STATUS_ON_SUBMIT = {
@@ -23,7 +23,7 @@ async function venueOwnerSubmitVenue(req, res) {
 
       if (!SUBMITTABLE_STATUSES.includes(venue.status)) {
          return res.status(400).json({
-            message: `Only venues with status "DRAFT" or "EDIT_DRAFT" can be submitted`,
+            message: statusNotAllowedMessage("submit"),
          });
       }
 

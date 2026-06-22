@@ -31,6 +31,8 @@ function VenueRow({ venue, onAction }) {
 
   const canSubmit  = ['DRAFT', 'EDIT_DRAFT'].includes(venue.status);
   const isApproved = venue.status === 'APPROVED';
+  // Backend only hard-deletes DRAFT / EDIT_DRAFT; hide the button elsewhere.
+  const canDelete  = ['DRAFT', 'EDIT_DRAFT'].includes(venue.status);
 
   return (
     <tr className="border-b last:border-0 hover:bg-gray-50">
@@ -81,13 +83,15 @@ function VenueRow({ venue, onAction }) {
               </button>
             )
           )}
-          <button
-            disabled={busy}
-            onClick={() => handle('delete')}
-            className="px-3 py-1 text-xs border border-red-300 text-red-500 rounded hover:bg-red-50 disabled:opacity-50 cursor-pointer"
-          >
-            {venue.status === 'EDIT_DRAFT' ? 'Discard Edit' : 'Delete'}
-          </button>
+          {canDelete && (
+            <button
+              disabled={busy}
+              onClick={() => handle('delete')}
+              className="px-3 py-1 text-xs border border-red-300 text-red-500 rounded hover:bg-red-50 disabled:opacity-50 cursor-pointer"
+            >
+              {venue.status === 'EDIT_DRAFT' ? 'Discard Edit' : 'Delete'}
+            </button>
+          )}
         </div>
       </td>
     </tr>

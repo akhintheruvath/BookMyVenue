@@ -1,4 +1,9 @@
-const { VENUE_STATUSES } = require("../../constants/venue");
+const {
+   VENUE_STATUSES,
+   SUBMITTABLE_STATUSES,
+   DELETABLE_STATUSES,
+   IN_PLACE_EDIT_STATUSES,
+} = require("../../constants/venue");
 const Categories = require("../../models/category");
 
 const DEFAULT_PAGE = 1;
@@ -67,6 +72,30 @@ async function buildVenueFilter({ district, category, minPrice, maxPrice } = {})
    return filter;
 }
 
+// Status gate per venue owner action: the statuses that permit it, and the
+// past-tense verb for the 400 message. Single source of truth so the guard and
+// its error message can't drift apart.
+const STATUS_GATE_BY_ACTION = {
+   submit: { statuses: SUBMITTABLE_STATUSES, verb: "submitted" },
+   delete: { statuses: DELETABLE_STATUSES, verb: "deleted" },
+   edit:   { statuses: IN_PLACE_EDIT_STATUSES, verb: "edited" },
+};
+
+// Builds the 400 message for a status-gated venue owner action, looking the
+// allowed list up by action so it never drifts from the guard. Quotes each
+// status and joins grammatically:
+//   ["DRAFT"]                         → Only venues with status "DRAFT" can be deleted
+//   ["DRAFT","EDIT_DRAFT"]            → ... "DRAFT" or "EDIT_DRAFT" can be deleted
+//   ["DRAFT","EDIT_DRAFT","REJECTED"] → ... "DRAFT", "EDIT_DRAFT" or "REJECTED" can be deleted
+function statusNotAllowedMessage(action) {
+   const { statuses, verb } = STATUS_GATE_BY_ACTION[action];
+   const quoted = statuses.map((status) => `"${status}"`);
+   const list = quoted.length === 1
+      ? quoted.join("")
+      : `${quoted.slice(0, -1).join(", ")} or ${quoted.at(-1)}`;
+   return `Only venues with status ${list} can be ${verb}`;
+}
+
 // Venue owner-side projection
 const OWNER_HIDDEN_FIELDS = "-deletedAt -__v";
 
@@ -111,6 +140,7 @@ module.exports = {
    EDITABLE_VENUE_FIELDS,
    REQUIRED_VENUE_FIELDS,
    missingRequiredVenueFields,
+   statusNotAllowedMessage,
    parsePageParam,
    buildVenueFilter,
 };

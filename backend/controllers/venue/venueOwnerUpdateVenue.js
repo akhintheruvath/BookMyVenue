@@ -1,6 +1,6 @@
 const Venues = require("../../models/venue");
 const { IN_PLACE_EDIT_STATUSES } = require("../../constants/venue");
-const { EDITABLE_VENUE_FIELDS } = require("./shared");
+const { EDITABLE_VENUE_FIELDS, statusNotAllowedMessage } = require("./shared");
 
 // PATCH /venueOwner/venues/update/:id
 // Autosave endpoint — partial update of a DRAFT or EDIT_DRAFT venue.
@@ -33,7 +33,7 @@ async function venueOwnerUpdateVenue(req, res) {
       if (!venue) return res.status(404).json({ message: "Venue not found" });
 
       if (!IN_PLACE_EDIT_STATUSES.includes(venue.status)) {
-         return res.status(400).json({ message: "Only venues with status DRAFT or EDIT_DRAFT can be edited" });
+         return res.status(400).json({ message: statusNotAllowedMessage("edit") });
       }
 
       for (const field of EDITABLE_VENUE_FIELDS) {

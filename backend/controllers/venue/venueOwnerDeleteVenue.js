@@ -1,5 +1,6 @@
 const Venues = require("../../models/venue");
-const { VENUE_STATUSES } = require("../../constants/venue");
+const { DELETABLE_STATUSES } = require("../../constants/venue");
+const { statusNotAllowedMessage } = require("./shared");
 
 // DELETE /venueOwner/venues/delete/:id
 // Hard-deletes a DRAFT document OR an EDIT_DRAFT clone document.
@@ -7,22 +8,26 @@ const { VENUE_STATUSES } = require("../../constants/venue");
 //   - DRAFT  : venue was never submitted, safe to drop entirely
 //   - EDIT_DRAFT: it is a clone of an APPROVED venue; deleting it discards the
 //     in-progress edits without affecting the original APPROVED document
-//
-// Rules:
-//   - Venue must belong to req.user._id (venue owner check)
-//   - Only DRAFT or EDIT_DRAFT status is allowed; all other statuses return 400
-//
-// TODO:
-//   1. Find venue by req.params.id where venueOwner === req.user._id and deletedAt === null
-//   2. If not found return 404 { message: "Venue not found" }
-//   3. If venue.status is not DRAFT or EDIT_DRAFT return 400
-//      { message: "Only DRAFT or EDIT_DRAFT venues can be deleted" }
-//   4. Call Venues.deleteOne({ _id: venue._id }) — hard delete, not soft
-//   5. Return 200 { message: "Venue deleted" }
-//   6. On error return 500 { message: "Failed to delete venue" }
 async function venueOwnerDeleteVenue(req, res) {
-   // TODO: implement
-   return res.status(501).json({ message: "Not implemented" });
+   try {
+      const venue = await Venues.findOne({
+         _id: req.params.id,
+         venueOwner: req.user._id,
+         deletedAt: null,
+      });
+      if (!venue) return res.status(404).json({ message: "Venue not found" });
+
+      if (!DELETABLE_STATUSES.includes(venue.status)) {
+         return res.status(400).json({
+            message: statusNotAllowedMessage("delete"),
+         });
+      }
+
+      await Venues.deleteOne({ _id: venue._id });
+      return res.status(200).json({ message: "Venue deleted" });
+   } catch (err) {
+      return res.status(500).json({ error: err.message, message: "Failed to delete venue" });
+   }
 }
 
 module.exports = venueOwnerDeleteVenue;

@@ -19,6 +19,16 @@ const SUBMITTABLE_STATUSES = Object.freeze([
    VENUE_STATUSES.EDIT_DRAFT,
 ]);
 
+// Venue owner-initiated hard delete. Only never-submitted/in-progress copies are
+// deletable:
+//   DRAFT       → a new venue that was never submitted; safe to drop entirely
+//   EDIT_DRAFT  → an edit copy of a live APPROVED venue; deleting it discards the
+//                 in-progress edits without touching the original APPROVED doc
+const DELETABLE_STATUSES = Object.freeze([
+   VENUE_STATUSES.DRAFT,
+   VENUE_STATUSES.EDIT_DRAFT,
+]);
+
 // Statuses an edit applies in place (the doc isn't live). Covers a new venue's
 // own draft states AND a not-yet-submitted edit copy. APPROVED is absent — editing
 // an APPROVED venue spawns a new EDIT_DRAFT copy instead. AND PENDING, CHANGES_PENDING are submitted versions
@@ -31,5 +41,6 @@ module.exports = {
    VENUE_STATUSES,
    VENUE_STATUS_VALUES: Object.values(VENUE_STATUSES),
    SUBMITTABLE_STATUSES,
+   DELETABLE_STATUSES,
    IN_PLACE_EDIT_STATUSES,
 };

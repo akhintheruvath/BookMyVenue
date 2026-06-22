@@ -11,6 +11,7 @@ import {
 } from "../../services/venueOwner.service.js";
 import VenueTable from '../../components/venueOwner/VenueTable.jsx';
 import DashboardTabs, { TABS, getEmptyTabText } from '../../components/venueOwner/DashboardTabs.jsx';
+import { showInfo } from '../../utils/toastBus';
 
 const PAGE_LIMIT = 10;
 
@@ -110,14 +111,19 @@ export function VenueOwnerMyVenues() {
       if (action === 'disable') await setVenueVisibility(venue._id, false);
       if (action === 'enable') await setVenueVisibility(venue._id, true);
       if (action === 'delete') {
-        if (!window.confirm(`Delete "${venue.name}"? This cannot be undone.`)) return;
+        const isEdit = venue.status === 'EDIT_DRAFT';
+        const confirmMsg = isEdit
+          ? `Discard your in-progress edits to "${venue.name}"? The live listing stays unchanged.`
+          : `Delete "${venue.name}"? This cannot be undone.`;
+        if (!window.confirm(confirmMsg)) return;
         await deleteVenue(venue._id);
+        showInfo(isEdit ? 'Edits discarded' : 'Venue deleted');
       }
       // Refresh counts + current tab after mutation
       fetchCounts();
       fetchTab(activeTab, tabState[activeTab].page);
-    } catch (err) {
-      alert(err.message);
+    } catch {
+      // The api client already surfaces the error as a toast; nothing to add here.
     }
   }
 
