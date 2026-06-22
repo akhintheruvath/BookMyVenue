@@ -1,36 +1,84 @@
-import { Link } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
+import {
+  LayoutDashboard,
+  Clock3,
+  LogOut,
+} from "lucide-react";
 
-export default function Navbar() {
+const navItems = [
+  {
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    path: "/admin/home",
+  },
+  {
+    label: "Venue Approvals",
+    icon: Clock3,
+    path: "/admin/venues/pending",
+  },
+];
+
+export default function AdminSidebar() {
+  const handleLogout = () => {
+    console.log("Logout");
+  };
 
   return (
-    <nav className="border-b border-gray-200 bg-white sticky top-0 z-50">
-      <div className="mx-auto max-w-7xl px-4 lg:px-6">
+    <aside className="fixed flex h-screen w-64 flex-col border-r border-gray-200 bg-white">
+      {/* Logo */}
+      <div className="border-b border-gray-200 px-5 py-4">
+        <Link
+          to="/admin/home"
+          className="flex items-center gap-2"
+        >
+          <img
+            src="/favicon.png"
+            alt="logo"
+            className="h-8 w-8"
+          />
+          <span className="font-semibold text-gray-900">
+            BookMyVenue • Admin
+          </span>
+        </Link>
+      </div>
 
+      {/* Navigation */}
+      <div className="p-3">
+        <nav className="space-y-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
 
-        <div className="flex h-16 items-center gap-3">
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-red-50 text-red-600"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                  }`
+                }
+              >
+                <Icon size={18} />
+                <span>{item.label}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+      </div>
 
-          <div className="logo flex items-center gap-2 shrink-0">
-            <Link to="/admin/home" className="flex items-center">
-              <div className="h-10 w-10 rounded-lg"><img src="/favicon.png" alt="icon" /></div>
-              <h1 className="text-lg font-semibold text-gray-900">
-                BookMyVenue • Admin
-              </h1>
-            </Link>
-          </div>
-
-
-          <div className="searchbar hidden flex-1 px-4 md:block">
-            <input
-              type="text"
-              placeholder="Search venues, cafes, auditoriums..."
-              className="w-full rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-700 outline-none placeholder:text-gray-400 focus:border-red-500"
-            />
-          </div>
-
-        </div>
-      </div>     
-    </nav>
-
-  )
+      {/* Logout */}
+      <div className="mt-auto border-t border-gray-200 p-3">
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
+        >
+          <LogOut size={18} />
+          <span>Log out</span>
+        </button>
+      </div>
+    </aside>
+  );
 }
-

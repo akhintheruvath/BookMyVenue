@@ -5,9 +5,7 @@ import { ToastViewport } from './components/shared/ToastViewport.jsx';
 import { RequireAuth } from './components/shared/RequireAuth.jsx';
 import { UserLayout } from './pages/UserPages/UserLayout.jsx';
 import { VenueOwnerLayout } from './pages/VenueOwnerPage/VenueOwnerLayout.jsx';
-import { AdminLayout } from './pages/AdminPage/AdminLayout.jsx';
 import { Home, Venue, Category,VenueDetails } from './pages/UserPages/UserPages.js';
-import { AdminLogin,AdminHome } from './pages/AdminPage/AdminPages.js';
 import {
   VenueOwnerLogin,
   VenueOwnerDashboard,
@@ -17,6 +15,8 @@ import {
   VenueOwnerAnalytics,
   VenueOwnerSettings,
 } from "./pages/VenueOwnerPage/VenueOwnerPage.js";
+import { AdminLayout } from './pages/AdminPage/AdminLayout.jsx';
+import { AdminLogin,AdminHome,AdminVenueApprovals, AdminVenueDetails } from './pages/AdminPage/AdminPages.js';
 
 function App() {
   return (
@@ -53,6 +53,8 @@ function App() {
         <Route path='/admin' element={<AdminLogin />} />
         <Route element={<AdminLayout />}>
           <Route path='/admin/home' element={<AdminHome />} />
+          <Route path='/admin/venues/pending' element={<AdminVenueApprovals />} />
+          <Route path='/admin/venues/:id' element={<AdminVenueDetails />} />
         </Route>
       </Routes>
     </>
