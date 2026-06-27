@@ -1,9 +1,10 @@
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Clock3,
   LogOut,
 } from "lucide-react";
+import { useAuth } from "../../context/authContext.js";
 
 const navItems = [
   {
@@ -19,8 +20,12 @@ const navItems = [
 ];
 
 export default function AdminSidebar() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
   const handleLogout = () => {
-    console.log("Logout");
+    logout();
+    navigate("/admin", { replace: true });
   };
 
   return (

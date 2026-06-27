@@ -130,6 +130,23 @@ function missingRequiredVenueFields(venue) {
    });
 }
 
+// Builds the seed for a new EDIT_DRAFT copy of an APPROVED venue: every editable
+// content field copied from the original, plus the copy-identifying fields
+// (status + editOf). venueOwner is carried from the original so ownership is
+// preserved. Nothing else (isActive/rejectionReason/timestamps) is copied —
+// those take their model defaults on the fresh document.
+function buildEditDraftSeed(original) {
+   const seed = {
+      venueOwner: original.venueOwner,
+      editOf: original._id,
+      status: VENUE_STATUSES.EDIT_DRAFT,
+   };
+   for (const field of EDITABLE_VENUE_FIELDS) {
+      seed[field] = original[field];
+   }
+   return seed;
+}
+
 module.exports = {
    DEFAULT_PAGE,
    DEFAULT_LIMIT,
@@ -140,6 +157,7 @@ module.exports = {
    EDITABLE_VENUE_FIELDS,
    REQUIRED_VENUE_FIELDS,
    missingRequiredVenueFields,
+   buildEditDraftSeed,
    statusNotAllowedMessage,
    parsePageParam,
    buildVenueFilter,

@@ -7,6 +7,7 @@ const venueOwnerGetVenueById = require("../controllers/venue/venueOwnerGetVenueB
 const venueOwnerCreateVenue = require("../controllers/venue/venueOwnerCreateVenue");
 const venueOwnerSubmitVenue = require("../controllers/venue/venueOwnerSubmitVenue");
 const venueOwnerUpdateVenue = require("../controllers/venue/venueOwnerUpdateVenue");
+const venueOwnerGetVenueForEdit = require("../controllers/venue/venueOwnerGetVenueForEdit");
 const setVenueVisibility    = require("../controllers/venue/setVenueVisibility");
 const venueOwnerDeleteVenue = require("../controllers/venue/venueOwnerDeleteVenue");
 
@@ -19,6 +20,7 @@ router.get("/venues",                    venueOwnerListVenues);
 router.get("/venues/:id",                venueOwnerGetVenueById);
 router.post("/venues",                   venueOwnerCreateVenue);
 router.post("/venues/submit/:id",        venueOwnerSubmitVenue);
+router.post("/getVenueForEdit/:id",      venueOwnerGetVenueForEdit);
 router.patch("/venues/update/:id",       venueOwnerUpdateVenue);
 router.patch("/venues/visibility/:id",   setVenueVisibility);
 router.delete("/venues/delete/:id",      venueOwnerDeleteVenue);
