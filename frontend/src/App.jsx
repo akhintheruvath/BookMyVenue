@@ -51,10 +51,12 @@ function App() {
 
         {/* Admin Routings */}
         <Route path='/admin' element={<AdminLogin />} />
-        <Route element={<AdminLayout />}>
-          <Route path='/admin/home' element={<AdminHome />} />
-          <Route path='/admin/venues/pending' element={<AdminVenueApprovals />} />
-          <Route path='/admin/venues/:id' element={<AdminVenueDetails />} />
+        <Route element={<RequireAuth roles={['admin']} loginPath='/admin' />}>
+          <Route element={<AdminLayout />}>
+            <Route path='/admin/home' element={<AdminHome />} />
+            <Route path='/admin/venues/pending' element={<AdminVenueApprovals />} />
+            <Route path='/admin/venues/:id' element={<AdminVenueDetails />} />
+          </Route>
         </Route>
       </Routes>
     </>
