@@ -12,6 +12,40 @@ const {
 // we must NOT filter editOf:null or we'd get zero results.
 const EDIT_COPY_STATUSES = [VENUE_STATUSES.EDIT_DRAFT, VENUE_STATUSES.CHANGES_PENDING];
 
+// Marks each APPROVED venue in the list with `editStatus`: the status of its
+// in-progress edit copy ("EDIT_DRAFT" = venue owner is editing, "CHANGES_PENDING" =
+// edits submitted and awaiting admin), or null when no open copy exists. Lets the
+// venue owner UI relabel/guard the Edit button without a per-row request. One extra
+// query for the whole page. Non-APPROVED venues are left untouched (editStatus
+// only ever applies to a live original).
+async function attachEditStatus(venues, ownerId) {
+   const approvedIds = venues
+      .filter((v) => v.status === VENUE_STATUSES.APPROVED)
+      .map((v) => v._id);
+
+   if (approvedIds.length === 0) return venues;
+
+   const copiesOfApprovedVenues = await Venues.find({
+      venueOwner: ownerId,
+      editOf: { $in: approvedIds },
+      status: { $in: EDIT_COPY_STATUSES },
+      deletedAt: null,
+   })
+      .select("editOf status")
+      .lean();
+
+   // original id -> copy status. Only one open copy per original is possible
+   // (getVenueForEdit is idempotent)
+   const statusByOriginal = new Map(copiesOfApprovedVenues.map((c) => [String(c.editOf), c.status]));
+
+   for (const venue of venues) {
+      if (venue.status === VENUE_STATUSES.APPROVED) {
+         venue.editStatus = statusByOriginal.get(String(venue._id)) ?? null;
+      }
+   }
+   return venues;
+}
+
 // GET /venueOwner/venues — paginated venue owner venue list based on statuses passed.
 // Query params:
 //   status  comma-separated status values (e.g. "APPROVED" or "DRAFT,EDIT_DRAFT")
@@ -53,6 +87,8 @@ async function venueOwnerListVenues(req, res) {
             .lean(),
          Venues.countDocuments(filter),
       ]);
+
+      await attachEditStatus(venues, req.user._id);
 
       return res.status(200).json({
          data: venues,

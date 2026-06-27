@@ -20,6 +20,15 @@ export const getVenueOwnerVenueById = async (id) => {
   return res.data;
 };
 
+// Starts (or resumes) editing of a live APPROVED venue. `originalId` is the
+// APPROVED original's id; the backend returns the EDIT_DRAFT copy to actually
+// edit (creating it on first call, returning the existing one thereafter).
+// Throws a 409 when an edit is already submitted for approval (CHANGES_PENDING).
+export const getVenueForEdit = async (originalId) => {
+  const res = await api.post(`/venueOwner/getVenueForEdit/${originalId}`);
+  return res.data;
+};
+
 // Creates an empty DRAFT venue and returns the created doc ({ _id, status, ... }).
 // The form is then filled on the edit page, which autosaves via updateVenue().
 export const createDraftVenue = async () => {

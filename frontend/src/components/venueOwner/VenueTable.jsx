@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Info } from 'lucide-react';
 
 function statusBadge(status) {
   const map = {
@@ -34,6 +35,13 @@ function VenueRow({ venue, onAction }) {
   // Backend only hard-deletes DRAFT / EDIT_DRAFT; hide the button elsewhere.
   const canDelete  = ['DRAFT', 'EDIT_DRAFT'].includes(venue.status);
 
+  // For a live (APPROVED) venue, editStatus describes its in-progress edit copy:
+  //   CHANGES_PENDING → edits already submitted; block re-editing until reviewed.
+  //   EDIT_DRAFT      → an edit is in progress; the button resumes it.
+  //   null/undefined  → no edit copy yet; the button starts one.
+  const editInReview = isApproved && venue.editStatus === 'CHANGES_PENDING';
+  const editLabel = isApproved && venue.editStatus === 'EDIT_DRAFT' ? 'Resume edit' : 'Edit';
+
   return (
     <tr className="border-b last:border-0 hover:bg-gray-50">
       <td className="py-3 px-4 text-sm font-medium text-gray-900 max-w-xs truncate">{venue.name}</td>
@@ -57,13 +65,23 @@ function VenueRow({ venue, onAction }) {
               Submit
             </button>
           )}
-          <button
-            disabled={busy}
-            onClick={() => handle('edit')}
-            className="px-3 py-1 text-xs border border-gray-300 text-gray-600 rounded hover:bg-gray-100 disabled:opacity-50 cursor-pointer"
-          >
-            Edit
-          </button>
+          {editInReview ? (
+            <span
+              title="Your edits have been submitted for approval. You can edit again once an admin reviews and approves them."
+              className="inline-flex items-center gap-1 px-3 py-1 text-xs border border-gray-200 text-gray-400 rounded cursor-not-allowed"
+            >
+              Edit
+              <Info size={13} />
+            </span>
+          ) : (
+            <button
+              disabled={busy}
+              onClick={() => handle('edit')}
+              className="px-3 py-1 text-xs border border-gray-300 text-gray-600 rounded hover:bg-gray-100 disabled:opacity-50 cursor-pointer"
+            >
+              {editLabel}
+            </button>
+          )}
           {isApproved && (
             venue.isActive ? (
               <button
